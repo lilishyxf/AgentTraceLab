@@ -1,0 +1,27 @@
+{
+  "schema_version": "agenttracelab.replay.v1",
+  "replay_id": "office-agent-regression",
+  "version": "1.0.0",
+  "target": {
+    "endpoint": "http://127.0.0.1:9000/v1/run",
+    "timeout_seconds": 15,
+    "max_response_bytes": 2097152,
+    "bearer_token_env": "AGENT_REPLAY_TOKEN"
+  },
+  "tasks": [
+    {
+      "task_id": "inspect-before-mutate",
+      "request": {
+        "task": "Inspect the bounded table and propose a normalization without committing it."
+      },
+      "adapter": "wasmhatch",
+      "response_path": "trace",
+      "expected_pass": true,
+      "expected_check_statuses": {
+        "agent.decision_evidence": "pass",
+        "agent.tool_decision_link": "pass"
+      },
+      "tags": ["office-agent", "safe-write"]
+    }
+  ]
+}

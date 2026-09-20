@@ -1,0 +1,13 @@
+{
+  "schema_version": "agenttracelab.wasmhatch-batch.v1",
+  "batch_id": "office-agent-baseline",
+  "version": "0.1.0",
+  "evidence_mode": "synthetic_fixture",
+  "entries": [
+    {
+      "scenario_id": "approved-write-with-readback",
+      "journal": "fixtures/wasmhatch_incomplete.json",
+      "tags": ["synthetic", "missing-evidence", "baseline"]
+    }
+  ]
+}

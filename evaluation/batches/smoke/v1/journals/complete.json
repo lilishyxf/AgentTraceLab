@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 1,
+  "runId": "run_journal_55555555555555555555555555555555",
+  "startedAt": "2026-09-20T03:00:00.000Z",
+  "updatedAt": "2026-09-20T03:00:06.000Z",
+  "state": "committed",
+  "events": [
+    {
+      "sequence": 1,
+      "occurredAt": "2026-09-20T03:00:01.000Z",
+      "elapsedMs": 1000,
+      "category": "model",
+      "outcome": "completed",
+      "summary": "Agent selected bounded inspection",
+      "detail": "The source shape was unknown.",
+      "evidence": {
+        "observation": "Column names have not been observed.",
+        "selected_action": "Inspect the source headers.",
+        "reason": "Transformation requires known columns.",
+        "tool_call_id": "run_journal_55555555555555555555555555555555:event:2",
+        "validation": "Inspection returned the required headers.",
+        "disposition": "continue"
+      }
+    },
+    {
+      "sequence": 2,
+      "occurredAt": "2026-09-20T03:00:02.000Z",
+      "elapsedMs": 2000,
+      "category": "tool",
+      "outcome": "completed",
+      "summary": "Source headers inspected",
+      "detail": "Four headers were observed.",
+      "evidence": {"column_count": 4}
+    },
+    {
+      "sequence": 3,
+      "occurredAt": "2026-09-20T03:00:03.000Z",
+      "elapsedMs": 3000,
+      "category": "proposal",
+      "outcome": "prepared",
+      "summary": "Bounded proposal prepared",
+      "detail": "The immutable proposal is ready for review.",
+      "evidence": {"changed_cells": 8}
+    },
+    {
+      "sequence": 4,
+      "occurredAt": "2026-09-20T03:00:04.000Z",
+      "elapsedMs": 4000,
+      "category": "approval",
+      "outcome": "approved",
+      "summary": "Foreground user approved the proposal",
+      "detail": "Approval remained bound to the reviewed proposal.",
+      "evidence": {}
+    },
+    {
+      "sequence": 5,
+      "occurredAt": "2026-09-20T03:00:05.000Z",
+      "elapsedMs": 5000,
+      "category": "effect",
+      "outcome": "committed",
+      "summary": "Approved spreadsheet effect committed",
+      "detail": "The approved proposal was committed once.",
+      "evidence": {"changed_cells": 8}
+    },
+    {
+      "sequence": 6,
+      "occurredAt": "2026-09-20T03:00:06.000Z",
+      "elapsedMs": 6000,
+      "category": "tool",
+      "outcome": "completed",
+      "summary": "Readback verified committed cells",
+      "detail": "Key cells matched the approved proposal.",
+      "evidence": {"verified_cells": 8}
+    }
+  ],
+  "metrics": {
+    "elapsedMs": 6000,
+    "modelEvents": 1,
+    "toolCalls": 2,
+    "scriptRuns": 0,
+    "proposalsPrepared": 1,
+    "approvals": 1,
+    "rejections": 0,
+    "commits": 1,
+    "conflicts": 0,
+    "uncertainOutcomes": 0,
+    "failures": 0,
+    "timeToFirstProposalMs": 3000,
+    "timeToFirstCommitMs": 5000
+  },
+  "context": {"task": "Inspect, propose, approve, commit, and verify a bounded update."},
+  "privacy": {
+    "credentialFieldsIncluded": false,
+    "sourceContentsIncluded": false,
+    "defensiveRedactionApplied": true,
+    "note": "Synthetic fixture."
+  }
+}

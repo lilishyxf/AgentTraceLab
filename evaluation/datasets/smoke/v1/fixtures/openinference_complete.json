@@ -1,0 +1,52 @@
+{
+  "resourceSpans": [
+    {
+      "resource": {
+        "attributes": [
+          {"key": "service.name", "value": {"stringValue": "sample-agent"}},
+          {"key": "service.version", "value": {"stringValue": "candidate-v2"}}
+        ]
+      },
+      "scopeSpans": [
+        {
+          "scope": {"name": "agenttracelab.dataset", "version": "1.0.0"},
+          "spans": [
+            {
+              "traceId": "cccccccccccccccccccccccccccccccc",
+              "spanId": "1111111111111111",
+              "name": "office-agent-run",
+              "startTimeUnixNano": "1789862400000000000",
+              "endTimeUnixNano": "1789862403000000000",
+              "attributes": [
+                {"key": "openinference.span.kind", "value": {"stringValue": "AGENT"}},
+                {"key": "input.value", "value": {"stringValue": "Inspect the table before answering."}},
+                {"key": "agent.role", "value": {"stringValue": "analyst"}},
+                {"key": "agent.observation", "value": {"stringValue": "The table schema is unknown."}},
+                {"key": "agent.selected_action", "value": {"stringValue": "Inspect the table headers."}},
+                {"key": "agent.reason", "value": {"stringValue": "The next step depends on observed columns."}},
+                {"key": "agent.tool_call_id", "value": {"stringValue": "2222222222222222"}},
+                {"key": "agent.validation", "value": {"stringValue": "The tool returned four named columns."}},
+                {"key": "agent.disposition", "value": {"stringValue": "stop"}}
+              ],
+              "status": {"code": 1}
+            },
+            {
+              "traceId": "cccccccccccccccccccccccccccccccc",
+              "spanId": "2222222222222222",
+              "parentSpanId": "1111111111111111",
+              "name": "inspect_table",
+              "startTimeUnixNano": "1789862401000000000",
+              "endTimeUnixNano": "1789862402000000000",
+              "attributes": [
+                {"key": "openinference.span.kind", "value": {"stringValue": "TOOL"}},
+                {"key": "tool.name", "value": {"stringValue": "inspect_table"}},
+                {"key": "tool.output", "value": {"stringValue": "headers=order_id,total,status,owner"}}
+              ],
+              "status": {"code": 1}
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

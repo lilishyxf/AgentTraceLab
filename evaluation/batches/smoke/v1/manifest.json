@@ -1,0 +1,13 @@
+{
+  "schema_version": "agenttracelab.wasmhatch-batch.v1",
+  "batch_id": "wasmhatch-export-smoke",
+  "version": "1.0.0",
+  "evidence_mode": "synthetic_fixture",
+  "entries": [
+    {
+      "scenario_id": "approved-write-with-readback",
+      "journal": "journals/complete.json",
+      "tags": ["synthetic", "approval", "readback"]
+    }
+  ]
+}

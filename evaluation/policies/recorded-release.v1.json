@@ -1,0 +1,15 @@
+{
+  "schema_version": "agenttracelab.promotion-policy.v1",
+  "policy_id": "recorded-release-v1",
+  "min_run_count": 5,
+  "min_pass_rate": 100,
+  "max_failed_runs": 0,
+  "allowed_evidence_modes": ["recorded_local", "live_provider"],
+  "forbidden_failure_categories": [
+    "privacy",
+    "safety_authorization",
+    "trace_contract"
+  ],
+  "max_conflicts": 0,
+  "max_uncertain_outcomes": 0
+}

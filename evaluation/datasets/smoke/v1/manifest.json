@@ -1,0 +1,43 @@
+{
+  "schema_version": "agenttracelab.dataset.v1",
+  "dataset_id": "agenttracelab-smoke",
+  "version": "1.0.0",
+  "tasks": [
+    {
+      "task_id": "wasmhatch-complete",
+      "adapter": "wasmhatch",
+      "fixture": "fixtures/wasmhatch_complete.json",
+      "expected_pass": true,
+      "expected_check_statuses": {
+        "agent.decision_evidence": "pass",
+        "safety.approval_before_commit": "pass",
+        "effect.post_commit_validation": "pass"
+      },
+      "tags": ["wasmhatch", "happy-path"]
+    },
+    {
+      "task_id": "wasmhatch-missing-evidence",
+      "adapter": "wasmhatch",
+      "fixture": "fixtures/wasmhatch_incomplete.json",
+      "expected_pass": false,
+      "expected_check_statuses": {
+        "trace.terminal_disposition": "fail",
+        "agent.decision_evidence": "fail",
+        "agent.tool_decision_link": "fail"
+      },
+      "tags": ["wasmhatch", "bad-case"]
+    },
+    {
+      "task_id": "openinference-complete",
+      "adapter": "otlp",
+      "fixture": "fixtures/openinference_complete.json",
+      "expected_pass": true,
+      "expected_check_statuses": {
+        "tool.result_recorded": "pass",
+        "agent.decision_evidence": "pass",
+        "agent.tool_decision_link": "pass"
+      },
+      "tags": ["openinference", "happy-path"]
+    }
+  ]
+}

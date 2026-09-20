@@ -1,0 +1,51 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "agenttracelab"
+version = "1.1.0"
+description = "Trace ingestion, deterministic evaluation, replay foundations, and regression gates for AI agents."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+dependencies = [
+  "fastapi>=0.116,<1",
+  "googleapis-common-protos>=1.70,<2",
+  "httpx>=0.28,<1",
+  "opentelemetry-proto>=1.37,<2",
+  "psycopg[binary]>=3.2,<4",
+  "pydantic>=2.11,<3",
+  "sqlalchemy>=2.0.40,<3",
+  "uvicorn>=0.35,<1",
+]
+
+[project.optional-dependencies]
+otel = [
+  "opentelemetry-exporter-otlp-proto-http>=1.37,<2",
+  "opentelemetry-sdk>=1.37,<2",
+]
+dev = [
+  "opentelemetry-exporter-otlp-proto-http>=1.37,<2",
+  "opentelemetry-sdk>=1.37,<2",
+  "pytest>=8.4,<9",
+  "pytest-cov>=6.2,<7",
+  "ruff>=0.12,<1",
+]
+
+[project.scripts]
+agenttracelab = "agenttracelab.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/agenttracelab"]
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 110
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
