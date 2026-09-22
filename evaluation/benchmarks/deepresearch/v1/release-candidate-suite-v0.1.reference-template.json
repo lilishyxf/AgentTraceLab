@@ -1,0 +1,43 @@
+{
+  "schema_version": "agenttracelab.deepresearch-reference-solutions.v1",
+  "benchmark_id": "deepresearch-release-candidate",
+  "benchmark_version": "0.1.0",
+  "instructions": [
+    "For each completed task, write a reviewed reference report that satisfies the task acceptance contract.",
+    "Give every independent reference source a distinct non-empty source_id.",
+    "For needs_user_input tasks, leave report empty and evidence empty to encode the safe no-retrieval reference outcome.",
+    "Do not bind this template to the manifest until the intended policy coverage is executable and independently reviewed."
+  ],
+  "tasks": [
+    {
+      "task_id": "official-openai-tracing-events",
+      "expected_status": "completed",
+      "report": "",
+      "evidence": []
+    },
+    {
+      "task_id": "official-anthropic-agent-evals",
+      "expected_status": "completed",
+      "report": "",
+      "evidence": []
+    },
+    {
+      "task_id": "outcome-evidence-score-bounds",
+      "expected_status": "completed",
+      "report": "",
+      "evidence": []
+    },
+    {
+      "task_id": "insufficient-private-pass-rate",
+      "expected_status": "needs_user_input",
+      "report": "",
+      "evidence": []
+    },
+    {
+      "task_id": "missing-agent-artifact",
+      "expected_status": "needs_user_input",
+      "report": "",
+      "evidence": []
+    }
+  ]
+}

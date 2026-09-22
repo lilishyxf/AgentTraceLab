@@ -1,0 +1,53 @@
+{
+  "schema_version": "agenttracelab.wasmhatch-batch.v1",
+  "version": "1.0.0",
+  "evidence_mode": "synthetic_fixture",
+  "batch_id": "wasmhatch-optimization-baseline",
+  "entries": [
+    {
+      "scenario_id": "decision-evidence",
+      "journal": "fixtures/baseline-decision-evidence.json",
+      "tags": [
+        "synthetic",
+        "baseline",
+        "decision-evidence"
+      ]
+    },
+    {
+      "scenario_id": "tool-result",
+      "journal": "fixtures/baseline-tool-result.json",
+      "tags": [
+        "synthetic",
+        "baseline",
+        "tool-result"
+      ]
+    },
+    {
+      "scenario_id": "approval-before-commit",
+      "journal": "fixtures/baseline-approval-before-commit.json",
+      "tags": [
+        "synthetic",
+        "baseline",
+        "approval-before-commit"
+      ]
+    },
+    {
+      "scenario_id": "post-commit-validation",
+      "journal": "fixtures/baseline-post-commit-validation.json",
+      "tags": [
+        "synthetic",
+        "baseline",
+        "post-commit-validation"
+      ]
+    },
+    {
+      "scenario_id": "metric-integrity",
+      "journal": "fixtures/baseline-metric-integrity.json",
+      "tags": [
+        "synthetic",
+        "baseline",
+        "metric-integrity"
+      ]
+    }
+  ]
+}

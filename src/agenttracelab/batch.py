@@ -12,6 +12,12 @@ from agenttracelab.adapters import adapt_wasmhatch_journal
 from agenttracelab.evaluation import evaluate_trace
 from agenttracelab.failures import FailureCategory, FailureFinding, classify_evaluation
 from agenttracelab.models import EvaluationReport, FrozenModel, TraceEnvelope
+from agenttracelab.optimization import (
+    OptimizationFeedback,
+    TrainingRewardRecord,
+    build_optimization_feedback,
+    build_training_reward,
+)
 
 EvidenceMode = Literal["synthetic_fixture", "recorded_local", "live_provider"]
 ID_PATTERN = r"^[A-Za-z0-9][A-Za-z0-9._-]*$"
@@ -56,11 +62,13 @@ class WasmHatchBatchItemResult(FrozenModel):
     state: str
     evaluation: EvaluationReport
     failures: tuple[FailureFinding, ...]
+    optimization_feedback: OptimizationFeedback
+    training_reward: TrainingRewardRecord
 
 
 class WasmHatchBatchReport(FrozenModel):
-    schema_version: Literal["agenttracelab.wasmhatch-batch-report.v1"] = (
-        "agenttracelab.wasmhatch-batch-report.v1"
+    schema_version: Literal["agenttracelab.wasmhatch-batch-report.v2"] = (
+        "agenttracelab.wasmhatch-batch-report.v2"
     )
     batch_id: str
     batch_version: str
@@ -144,6 +152,8 @@ def evaluate_wasmhatch_batch(manifest_path: str | Path) -> WasmHatchBatchReport:
                 state=trace.state,
                 evaluation=evaluation,
                 failures=classify_evaluation(evaluation),
+                optimization_feedback=build_optimization_feedback(trace, evaluation),
+                training_reward=build_training_reward(trace, evaluation),
             )
         )
 

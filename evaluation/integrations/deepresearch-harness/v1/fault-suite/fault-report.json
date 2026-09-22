@@ -1,0 +1,172 @@
+{
+  "schema_version": "agenttracelab.deepresearch-fault-report.v1",
+  "suite_id": "deepresearch-evaluator-mutations-v1",
+  "suite_version": "1.0.0",
+  "source_run_id": "run_4eb2e26b345c4746972de096bc259c10",
+  "source_snapshot_sha256": "c40c20bdc59648437e928bfb76e1d197759ef142c7cd8c7145ede2901a54d3b8",
+  "created_at": "2026-09-20T17:02:14.907496Z",
+  "original_passed": true,
+  "original_score": 100.0,
+  "case_count": 10,
+  "detected_count": 10,
+  "mutation_detection_rate": 1.0,
+  "missed_fault_ids": [],
+  "observed_failure_categories": {
+    "agent.tool_decision_link": 1,
+    "deepresearch.checkpoints_intact": 1,
+    "deepresearch.citations_valid": 1,
+    "deepresearch.duplicate_tool_calls_absent": 1,
+    "deepresearch.required_contracts_pass": 1,
+    "deepresearch.source_isolation": 1,
+    "deepresearch.tool_accounting_consistent": 1,
+    "privacy.no_raw_secret": 1,
+    "tool.result_recorded": 1,
+    "trace.terminal_disposition": 1
+  },
+  "results": [
+    {
+      "fault_id": "bad-citation",
+      "fault_type": "citation_corruption",
+      "expected_check_ids": [
+        "deepresearch.citations_valid"
+      ],
+      "observed_failure_categories": [
+        "deepresearch.citations_valid"
+      ],
+      "detected": true,
+      "evaluator_score": 92.31,
+      "mutant_path": null,
+      "evaluation_path": null
+    },
+    {
+      "fault_id": "source-leak",
+      "fault_type": "source_mode_leakage",
+      "expected_check_ids": [
+        "deepresearch.source_isolation"
+      ],
+      "observed_failure_categories": [
+        "deepresearch.source_isolation"
+      ],
+      "detected": true,
+      "evaluator_score": 92.31,
+      "mutant_path": null,
+      "evaluation_path": null
+    },
+    {
+      "fault_id": "bad-checkpoint",
+      "fault_type": "checkpoint_corruption",
+      "expected_check_ids": [
+        "deepresearch.checkpoints_intact"
+      ],
+      "observed_failure_categories": [
+        "deepresearch.checkpoints_intact"
+      ],
+      "detected": true,
+      "evaluator_score": 92.31,
+      "mutant_path": null,
+      "evaluation_path": null
+    },
+    {
+      "fault_id": "failed-contract",
+      "fault_type": "required_contract_failure",
+      "expected_check_ids": [
+        "deepresearch.required_contracts_pass"
+      ],
+      "observed_failure_categories": [
+        "deepresearch.required_contracts_pass"
+      ],
+      "detected": true,
+      "evaluator_score": 92.31,
+      "mutant_path": null,
+      "evaluation_path": null
+    },
+    {
+      "fault_id": "usage-drift",
+      "fault_type": "tool_accounting_drift",
+      "expected_check_ids": [
+        "deepresearch.tool_accounting_consistent"
+      ],
+      "observed_failure_categories": [
+        "deepresearch.tool_accounting_consistent"
+      ],
+      "detected": true,
+      "evaluator_score": 92.31,
+      "mutant_path": null,
+      "evaluation_path": null
+    },
+    {
+      "fault_id": "lost-tool-result",
+      "fault_type": "tool_result_loss",
+      "expected_check_ids": [
+        "tool.result_recorded"
+      ],
+      "observed_failure_categories": [
+        "tool.result_recorded"
+      ],
+      "detected": true,
+      "evaluator_score": 92.31,
+      "mutant_path": null,
+      "evaluation_path": null
+    },
+    {
+      "fault_id": "active-run",
+      "fault_type": "non_terminal_run",
+      "expected_check_ids": [
+        "trace.terminal_disposition"
+      ],
+      "observed_failure_categories": [
+        "trace.terminal_disposition"
+      ],
+      "detected": true,
+      "evaluator_score": 92.31,
+      "mutant_path": null,
+      "evaluation_path": null
+    },
+    {
+      "fault_id": "lost-decision-link",
+      "fault_type": "decision_tool_link_loss",
+      "expected_check_ids": [
+        "agent.tool_decision_link"
+      ],
+      "observed_failure_categories": [
+        "agent.tool_decision_link"
+      ],
+      "detected": true,
+      "evaluator_score": 92.31,
+      "mutant_path": null,
+      "evaluation_path": null
+    },
+    {
+      "fault_id": "secret-in-trace",
+      "fault_type": "secret_leakage",
+      "expected_check_ids": [
+        "privacy.no_raw_secret"
+      ],
+      "observed_failure_categories": [
+        "privacy.no_raw_secret"
+      ],
+      "detected": true,
+      "evaluator_score": 92.31,
+      "mutant_path": null,
+      "evaluation_path": null
+    },
+    {
+      "fault_id": "duplicate-tool",
+      "fault_type": "duplicate_tool_call",
+      "expected_check_ids": [
+        "deepresearch.duplicate_tool_calls_absent"
+      ],
+      "observed_failure_categories": [
+        "deepresearch.duplicate_tool_calls_absent"
+      ],
+      "detected": true,
+      "evaluator_score": 92.31,
+      "mutant_path": null,
+      "evaluation_path": null
+    }
+  ],
+  "limitations": [
+    "Snapshot mutation measures evaluator sensitivity, not target-Agent recovery behavior.",
+    "Target-side network, provider, and tool faults require injection hooks in the target runtime."
+  ]
+}

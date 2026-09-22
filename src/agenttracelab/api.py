@@ -1,14 +1,21 @@
 from __future__ import annotations
 
 import os
-from typing import Any
+from typing import Annotated, Any
 
-from fastapi import FastAPI, HTTPException, Request, Response
+from fastapi import FastAPI, HTTPException, Query, Request, Response
 from pydantic import BaseModel, ConfigDict, ValidationError
 
 from agenttracelab import __version__
 from agenttracelab.judging import LlmJudgeReport
 from agenttracelab.models import ComparisonReport, EvaluationReport, TraceEnvelope
+from agenttracelab.optimization import (
+    AGENT_LIGHTNING_ID_PATTERN,
+    AgentLightningRewardEventExport,
+    GepaEvaluationRecord,
+    OptimizationFeedback,
+    TrainingRewardRecord,
+)
 from agenttracelab.otlp_http import (
     DEFAULT_MAX_DECODED_BYTES,
     DEFAULT_MAX_WIRE_BYTES,
@@ -106,6 +113,14 @@ def create_app(
             raise HTTPException(status_code=422, detail=str(exc)) from exc
         return ImportResponse(trace=trace, evaluation=report)
 
+    @app.post("/v1/traces/import/deepresearch", response_model=ImportResponse)
+    def import_deepresearch(payload: dict[str, Any]) -> ImportResponse:
+        try:
+            trace, report = service.import_deepresearch(payload)
+        except (ValidationError, ValueError) as exc:
+            raise HTTPException(status_code=422, detail=str(exc)) from exc
+        return ImportResponse(trace=trace, evaluation=report)
+
     @app.post("/v1/traces/import/normalized", response_model=ImportResponse)
     def import_normalized(trace: TraceEnvelope) -> ImportResponse:
         stored, report = service.import_normalized(trace)
@@ -151,6 +166,54 @@ def create_app(
             return service.get_latest_evaluation(trace_id)
         except TraceNotFoundError as exc:
             raise HTTPException(status_code=404, detail="Evaluation not found") from exc
+
+    @app.get(
+        "/v1/optimization-feedback/{trace_id}",
+        response_model=OptimizationFeedback,
+    )
+    def get_optimization_feedback(trace_id: str) -> OptimizationFeedback:
+        try:
+            return service.get_optimization_feedback(trace_id)
+        except TraceNotFoundError as exc:
+            raise HTTPException(status_code=404, detail="Trace or evaluation not found") from exc
+
+    @app.get(
+        "/v1/training-rewards/{trace_id}",
+        response_model=TrainingRewardRecord,
+    )
+    def get_training_reward(trace_id: str) -> TrainingRewardRecord:
+        try:
+            return service.get_training_reward(trace_id)
+        except TraceNotFoundError as exc:
+            raise HTTPException(status_code=404, detail="Trace or evaluation not found") from exc
+
+    @app.get(
+        "/v1/integrations/agent-lightning/reward-events/{trace_id}",
+        response_model=AgentLightningRewardEventExport,
+    )
+    def get_agent_lightning_reward_event(
+        trace_id: str,
+        rollout_id: Annotated[str, Query(pattern=AGENT_LIGHTNING_ID_PATTERN)],
+        attempt_id: Annotated[str, Query(pattern=AGENT_LIGHTNING_ID_PATTERN)] = "0",
+    ) -> AgentLightningRewardEventExport:
+        try:
+            return service.get_agent_lightning_reward_event(
+                trace_id,
+                rollout_id=rollout_id,
+                attempt_id=attempt_id,
+            )
+        except TraceNotFoundError as exc:
+            raise HTTPException(status_code=404, detail="Trace or evaluation not found") from exc
+
+    @app.get(
+        "/v1/integrations/gepa/evaluations/{trace_id}",
+        response_model=GepaEvaluationRecord,
+    )
+    def get_gepa_evaluation(trace_id: str) -> GepaEvaluationRecord:
+        try:
+            return service.get_gepa_evaluation(trace_id)
+        except TraceNotFoundError as exc:
+            raise HTTPException(status_code=404, detail="Trace or evaluation not found") from exc
 
     @app.get("/v1/judgments/{trace_id}/latest", response_model=LlmJudgeReport)
     def get_latest_judgment(trace_id: str) -> LlmJudgeReport:

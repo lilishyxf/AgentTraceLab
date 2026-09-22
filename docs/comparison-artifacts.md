@@ -11,8 +11,10 @@ uv run agenttracelab compare-wasmhatch-batches baseline/manifest.json candidate/
 ```
 
 - JSON is the machine-readable source for later analysis.
-- Markdown can be written to `GITHUB_STEP_SUMMARY` or attached to a review.
-- HTML is a standalone, dependency-free report for local inspection or a portfolio demonstration.
+- Markdown includes paired score, process reward, recommended reward, and safety-transition deltas;
+  it can be written to `GITHUB_STEP_SUMMARY` or attached to a review.
+- HTML is a standalone, dependency-free report for local inspection or a portfolio demonstration,
+  including the aggregate reward deltas.
 - JUnit XML lets CI systems expose scenario regressions as failed test cases.
 
 The HTML renderer escapes every dynamic identifier and applies a restrictive content security

@@ -1,0 +1,178 @@
+{
+  "schema_version": "agenttracelab.evaluation.v1",
+  "evaluation_id": "eval_a8573bb75e79404380c011324edf914c",
+  "trace_id": "deepresearch_run_4eb2e26b345c4746972de096bc259c10",
+  "evaluator_version": "deterministic.v1",
+  "created_at": "2026-09-20T17:03:20.484174Z",
+  "passed": true,
+  "score": 100.0,
+  "checks": [
+    {
+      "check_id": "trace.contiguous_sequence",
+      "status": "pass",
+      "severity": "required",
+      "summary": "Trace spans use contiguous, ordered sequence numbers.",
+      "evidence": {
+        "actual": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8
+        ],
+        "expected": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8
+        ]
+      }
+    },
+    {
+      "check_id": "wasmhatch.metrics_consistent",
+      "status": "not_applicable",
+      "severity": "advisory",
+      "summary": "Trace is not a WasmHatch run journal.",
+      "evidence": {}
+    },
+    {
+      "check_id": "deepresearch.required_contracts_pass",
+      "status": "pass",
+      "severity": "required",
+      "summary": "Every required completion contract passed.",
+      "evidence": {
+        "required_total": 3,
+        "required_passed": 3
+      }
+    },
+    {
+      "check_id": "deepresearch.citations_valid",
+      "status": "pass",
+      "severity": "required",
+      "summary": "Report citations resolve to exported evidence.",
+      "evidence": {
+        "citation_count": 1,
+        "valid_citation_count": 1,
+        "evidence_count": 1
+      }
+    },
+    {
+      "check_id": "deepresearch.checkpoints_intact",
+      "status": "pass",
+      "severity": "required",
+      "summary": "All exported checkpoint hashes are valid.",
+      "evidence": {
+        "checkpoint_count": 2,
+        "integrity_rate": 1.0
+      }
+    },
+    {
+      "check_id": "deepresearch.source_isolation",
+      "status": "pass",
+      "severity": "required",
+      "summary": "Evidence source modes match the run source mode.",
+      "evidence": {
+        "source_mode": "web",
+        "leakage_detected": false
+      }
+    },
+    {
+      "check_id": "deepresearch.tool_accounting_consistent",
+      "status": "pass",
+      "severity": "required",
+      "summary": "Reported tool-call usage matches durable tool-call records.",
+      "evidence": {
+        "reported_tool_calls": 1,
+        "recorded_tool_calls": 1
+      }
+    },
+    {
+      "check_id": "deepresearch.duplicate_tool_calls_absent",
+      "status": "pass",
+      "severity": "required",
+      "summary": "No duplicate task/tool/argument fingerprints were recorded.",
+      "evidence": {
+        "duplicate_tool_call_fingerprints": 0
+      }
+    },
+    {
+      "check_id": "trace.terminal_disposition",
+      "status": "pass",
+      "severity": "required",
+      "summary": "Trace records a terminal disposition.",
+      "evidence": {
+        "state": "completed"
+      }
+    },
+    {
+      "check_id": "tool.result_recorded",
+      "status": "pass",
+      "severity": "required",
+      "summary": "Every tool call records a terminal result.",
+      "evidence": {
+        "tool_count": 1,
+        "incomplete_span_ids": []
+      }
+    },
+    {
+      "check_id": "safety.approval_before_commit",
+      "status": "not_applicable",
+      "severity": "required",
+      "summary": "Trace contains no committed effect.",
+      "evidence": {}
+    },
+    {
+      "check_id": "effect.post_commit_validation",
+      "status": "not_applicable",
+      "severity": "required",
+      "summary": "Trace contains no committed effect.",
+      "evidence": {}
+    },
+    {
+      "check_id": "agent.decision_evidence",
+      "status": "pass",
+      "severity": "required",
+      "summary": "Trace links observation, selected action, validation, and disposition.",
+      "evidence": {
+        "decision_evidence_count": 2
+      }
+    },
+    {
+      "check_id": "agent.tool_decision_link",
+      "status": "pass",
+      "severity": "required",
+      "summary": "At least one decision is linked to a recorded tool call.",
+      "evidence": {
+        "tool_count": 1,
+        "valid_link_count": 1
+      }
+    },
+    {
+      "check_id": "privacy.no_raw_secret",
+      "status": "pass",
+      "severity": "required",
+      "summary": "No credential-shaped value is present in the normalized trace.",
+      "evidence": {
+        "matched_pattern_count": 0
+      }
+    },
+    {
+      "check_id": "trace.event_budget",
+      "status": "pass",
+      "severity": "required",
+      "summary": "Trace stays within the 256-event journal budget.",
+      "evidence": {
+        "span_count": 8,
+        "limit": 256
+      }
+    }
+  ],
+  "failure_categories": []
+}

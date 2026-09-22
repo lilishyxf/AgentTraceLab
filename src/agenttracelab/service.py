@@ -2,7 +2,11 @@ from __future__ import annotations
 
 from typing import Any
 
-from agenttracelab.adapters import adapt_otlp_json, adapt_wasmhatch_journal
+from agenttracelab.adapters import (
+    adapt_deepresearch_snapshot,
+    adapt_otlp_json,
+    adapt_wasmhatch_journal,
+)
 from agenttracelab.calibration import (
     CalibrationCase,
     CalibrationCaseProvenance,
@@ -14,6 +18,16 @@ from agenttracelab.comparison import compare_evaluations
 from agenttracelab.evaluation import evaluate_trace
 from agenttracelab.judging import LlmJudgeReport, TraceJudge
 from agenttracelab.models import ComparisonReport, EvaluationReport, TraceEnvelope
+from agenttracelab.optimization import (
+    AgentLightningRewardEventExport,
+    GepaEvaluationRecord,
+    OptimizationFeedback,
+    TrainingRewardRecord,
+    build_agent_lightning_reward_event,
+    build_gepa_evaluation,
+    build_optimization_feedback,
+    build_training_reward,
+)
 from agenttracelab.review import (
     ReviewItem,
     ReviewResolutionInput,
@@ -34,6 +48,10 @@ class AgentTraceService:
 
     def import_wasmhatch(self, payload: dict[str, Any]) -> tuple[TraceEnvelope, EvaluationReport]:
         trace = adapt_wasmhatch_journal(payload)
+        return self._save_and_evaluate(trace)
+
+    def import_deepresearch(self, payload: dict[str, Any]) -> tuple[TraceEnvelope, EvaluationReport]:
+        trace = adapt_deepresearch_snapshot(payload)
         return self._save_and_evaluate(trace)
 
     def import_normalized(self, trace: TraceEnvelope) -> tuple[TraceEnvelope, EvaluationReport]:
@@ -64,6 +82,38 @@ class AgentTraceService:
         baseline = self.get_latest_evaluation(baseline_trace_id)
         candidate = self.get_latest_evaluation(candidate_trace_id)
         return compare_evaluations(baseline, candidate)
+
+    def get_optimization_feedback(self, trace_id: str) -> OptimizationFeedback:
+        return build_optimization_feedback(
+            self.get_trace(trace_id),
+            self.get_latest_evaluation(trace_id),
+        )
+
+    def get_training_reward(self, trace_id: str) -> TrainingRewardRecord:
+        return build_training_reward(
+            self.get_trace(trace_id),
+            self.get_latest_evaluation(trace_id),
+        )
+
+    def get_agent_lightning_reward_event(
+        self,
+        trace_id: str,
+        *,
+        rollout_id: str,
+        attempt_id: str = "0",
+    ) -> AgentLightningRewardEventExport:
+        return build_agent_lightning_reward_event(
+            self.get_trace(trace_id),
+            self.get_latest_evaluation(trace_id),
+            rollout_id=rollout_id,
+            attempt_id=attempt_id,
+        )
+
+    def get_gepa_evaluation(self, trace_id: str) -> GepaEvaluationRecord:
+        return build_gepa_evaluation(
+            self.get_trace(trace_id),
+            self.get_latest_evaluation(trace_id),
+        )
 
     def judge_trace(self, trace_id: str, judge: TraceJudge) -> LlmJudgeReport:
         trace = self.get_trace(trace_id)

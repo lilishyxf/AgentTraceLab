@@ -1,0 +1,57 @@
+{
+  "schema_version": "agenttracelab.deepresearch-benchmark.v1",
+  "benchmark_id": "deepresearch-outcome-evidence-repaired-diagnostic",
+  "version": "1.0.0",
+  "description": "Focused diagnostic rerun for the repaired outcome-evidence task. The prompt binds the exact public primary sources and avoids unresolved referential wording.",
+  "evidence_class": "live-system",
+  "target_name": "deepresearch-agent-harness",
+  "target_revision": "6d9096fd859a+dirty.1757a12a2619daef",
+  "target_provider": "deepseek",
+  "target_model": "deepseek-flash",
+  "expected_claim_judge_provider": null,
+  "expected_claim_judge_model": null,
+  "expected_claim_judge_prompt_version": null,
+  "minimum_judge_separation": "none",
+  "trials_per_task": 3,
+  "poll_interval_seconds": 1.0,
+  "timeout_seconds": 300.0,
+  "cancel_on_timeout": true,
+  "design_evidence": {
+    "suite_kind": "regression",
+    "dataset_review_status": "unreviewed",
+    "task_source": "synthetic",
+    "reference_solution_coverage": 0.0,
+    "outcome_grader_coverage": 1.0,
+    "transcript_review_count": 0,
+    "production_case_count": 0,
+    "environment_isolation": "process",
+    "environment_fingerprint": "sha256:77b08fbd2e1586c386475244b32b1cdefa2805679c945ec980784a14d0fb0285",
+    "resource_profile": "Windows 10 build 26200; Python 3.11.5; uvicorn workers=1; fresh isolated SQLite database; DDGS web provider; DeepSeek deepseek-flash; per-trial timeout=300s; Claim Judge intentionally absent"
+  },
+  "tasks": [
+    {
+      "task_id": "outcome-evidence-score-bounds",
+      "prompt": "请联网读取并仅依据两份公开原始资料 https://arxiv.org/html/2605.10448 和 https://agentbenchaudit.github.io/evidence-bounds/ ，解释 Agent 基准为什么可能无法支撑自己报告的分数。说明 Evidence Pass、Evidence Fail、Unknown 与证据支持的得分上下界，并明确证据上下界和统计置信区间的区别。每个关键判断给出可核验链接。",
+      "source_mode": "web",
+      "workflow_mode": "deep_research",
+      "report_type": "brief",
+      "include_domains": ["arxiv.org", "agentbenchaudit.github.io"],
+      "exclude_domains": [],
+      "tags": ["outcome-evidence", "score-bounds", "uncertainty", "benchmark-repair"],
+      "acceptance_contract": {
+        "contract_id": "outcome-evidence-bounds-v2",
+        "min_report_chars": 500,
+        "min_independent_sources": 2,
+        "min_independent_domains": 2,
+        "required_concepts": [
+          {"criterion_id": "evidence-pass", "aliases": ["Evidence Pass", "证据通过"]},
+          {"criterion_id": "evidence-fail", "aliases": ["Evidence Fail", "证据失败"]},
+          {"criterion_id": "unknown", "aliases": ["Unknown", "未知"]},
+          {"criterion_id": "lower-bound", "aliases": ["下界", "lower bound"]},
+          {"criterion_id": "upper-bound", "aliases": ["上界", "upper bound"]},
+          {"criterion_id": "confidence-distinction", "aliases": ["置信区间", "confidence interval"]}
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": "agenttracelab.deepresearch-regression-policy.v1",
+  "min_candidate_pass_rate": 0.8,
+  "min_pass_rate_delta": 0.0,
+  "min_mean_score_delta": 0.0,
+  "max_latency_ratio": 1.5,
+  "max_safety_regressions": 0,
+  "require_fresh_traces": true,
+  "require_live_system_evidence": true,
+  "require_claim_judge": false,
+  "min_claim_semantic_support": 0.75
+}

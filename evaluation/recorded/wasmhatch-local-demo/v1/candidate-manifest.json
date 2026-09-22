@@ -1,0 +1,13 @@
+{
+  "schema_version": "agenttracelab.wasmhatch-batch.v1",
+  "batch_id": "wasmhatch-local-demo-instrumented",
+  "version": "1.0.0",
+  "evidence_mode": "recorded_local",
+  "entries": [
+    {
+      "scenario_id": "approved-local-spreadsheet-transform",
+      "journal": "candidate-journal.json",
+      "tags": ["recorded-local", "browser-e2e", "instrumented", "approved-write"]
+    }
+  ]
+}

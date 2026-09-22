@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+from collections.abc import Callable
 from datetime import UTC, datetime
 from pathlib import Path
 from time import perf_counter
@@ -10,7 +11,11 @@ from typing import Any, Literal
 import httpx
 from pydantic import Field, HttpUrl, model_validator
 
-from agenttracelab.adapters import adapt_otlp_json, adapt_wasmhatch_journal
+from agenttracelab.adapters import (
+    adapt_deepresearch_snapshot,
+    adapt_otlp_json,
+    adapt_wasmhatch_journal,
+)
 from agenttracelab.datasets import match_expectations
 from agenttracelab.evaluation import evaluate_trace
 from agenttracelab.failures import (
@@ -38,7 +43,7 @@ class ReplayTarget(FrozenModel):
 class ReplayTask(FrozenModel):
     task_id: str = Field(min_length=1, max_length=128)
     request: dict[str, Any]
-    adapter: Literal["wasmhatch", "normalized", "otlp"]
+    adapter: Literal["wasmhatch", "deepresearch", "normalized", "otlp"]
     response_path: str | None = Field(default=None, max_length=256)
     expected_pass: bool = True
     expected_check_statuses: dict[str, CheckStatus] = Field(default_factory=dict)
@@ -93,7 +98,10 @@ class ReplayRunReport(FrozenModel):
     results: tuple[ReplayTaskResult, ...]
 
 
-def _load_manifest(path: str | Path) -> ReplayManifest:
+TraceEvaluationObserver = Callable[[TraceEnvelope, EvaluationReport], None]
+
+
+def load_replay_manifest(path: str | Path) -> ReplayManifest:
     manifest_path = Path(path).resolve()
     if manifest_path.stat().st_size > 1_048_576:
         raise ValueError("replay manifest exceeds the 1 MiB limit")
@@ -118,6 +126,8 @@ def _extract_payload(payload: Any, response_path: str | None) -> dict[str, Any]:
 def _adapt_trace(task: ReplayTask, payload: dict[str, Any]) -> TraceEnvelope:
     if task.adapter == "wasmhatch":
         return adapt_wasmhatch_journal(payload)
+    if task.adapter == "deepresearch":
+        return adapt_deepresearch_snapshot(payload)
     if task.adapter == "normalized":
         return TraceEnvelope.model_validate(payload)
     traces = adapt_otlp_json(payload)
@@ -150,6 +160,7 @@ def _run_task(
     target: ReplayTarget,
     task: ReplayTask,
     headers: dict[str, str],
+    on_evaluated: TraceEvaluationObserver | None = None,
 ) -> ReplayTaskResult:
     started = perf_counter()
     try:
@@ -211,6 +222,8 @@ def _run_task(
         )
 
     evaluation = evaluate_trace(trace)
+    if on_evaluated is not None:
+        on_evaluated(trace, evaluation)
     matched, mismatches = match_expectations(
         expected_pass=task.expected_pass,
         expected_check_statuses=task.expected_check_statuses,
@@ -237,12 +250,12 @@ def _run_task(
     )
 
 
-def run_replay(
-    manifest_path: str | Path,
+def run_replay_manifest(
+    manifest: ReplayManifest,
     *,
     client: httpx.Client | None = None,
+    on_evaluated: TraceEvaluationObserver | None = None,
 ) -> ReplayRunReport:
-    manifest = _load_manifest(manifest_path)
     headers = {"Accept": "application/json"}
     if manifest.target.bearer_token_env:
         token = os.getenv(manifest.target.bearer_token_env)
@@ -258,7 +271,16 @@ def run_replay(
         follow_redirects=False,
     )
     try:
-        results = tuple(_run_task(active_client, manifest.target, task, headers) for task in manifest.tasks)
+        results = tuple(
+            _run_task(
+                active_client,
+                manifest.target,
+                task,
+                headers,
+                on_evaluated,
+            )
+            for task in manifest.tasks
+        )
     finally:
         if owns_client:
             active_client.close()
@@ -277,4 +299,17 @@ def run_replay(
         completed_tasks=len(completed),
         evaluation_pass_rate=pass_rate,
         results=results,
+    )
+
+
+def run_replay(
+    manifest_path: str | Path,
+    *,
+    client: httpx.Client | None = None,
+    on_evaluated: TraceEvaluationObserver | None = None,
+) -> ReplayRunReport:
+    return run_replay_manifest(
+        load_replay_manifest(manifest_path),
+        client=client,
+        on_evaluated=on_evaluated,
     )

@@ -1,0 +1,28 @@
+{
+  "schema_version": "agenttracelab.deepresearch-benchmark.v1",
+  "benchmark_id": "deepresearch-official-tracing-citation-reliability",
+  "version": "0.3.0",
+  "description": "Three-trial live regression for explicit evidence IDs on factual prose, bullets, and Markdown table rows in an official-source research answer.",
+  "evidence_class": "live-system",
+  "target_name": "deepresearch-agent-harness",
+  "target_revision": null,
+  "target_provider": "deepseek",
+  "target_model": "deepseek-flash",
+  "minimum_judge_separation": "none",
+  "trials_per_task": 3,
+  "poll_interval_seconds": 1.0,
+  "timeout_seconds": 300.0,
+  "cancel_on_timeout": true,
+  "tasks": [
+    {
+      "task_id": "official-openai-tracing-control",
+      "prompt": "仅使用 OpenAI 官方资料，说明 Agents SDK tracing 会记录哪些运行事件，并给出可核验链接。",
+      "source_mode": "web",
+      "workflow_mode": "deep_research",
+      "report_type": "brief",
+      "include_domains": ["openai.github.io", "developers.openai.com"],
+      "exclude_domains": [],
+      "tags": ["official-source-research", "official-only", "citation-reliability"]
+    }
+  ]
+}

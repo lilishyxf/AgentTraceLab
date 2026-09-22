@@ -1,0 +1,66 @@
+{
+  "schema_version": "agenttracelab.dataset-review.v1",
+  "review_id": "deepresearch-release-candidate-v0.2-provisional-judge-0.2.0-pending",
+  "benchmark_id": "deepresearch-release-candidate-v0.2-provisional-judge",
+  "benchmark_version": "0.2.0",
+  "reviewed_tasks_sha256": "aade4b865fc5268ed4dc5f36a58690408fc14616bf2323bcda7a0383251cb494",
+  "review_status": "pending",
+  "reviewer": null,
+  "reviewed_at": null,
+  "instructions": [
+    "Read each prompt and decide whether it represents the intended Agent behavior.",
+    "For completed tasks, verify that every required concept and alias is necessary, sufficient as a deterministic floor, and not trivially gameable.",
+    "Verify that minimum independent-domain counts and allowed-domain roots represent genuinely distinct publishers for each task.",
+    "For needs_user_input tasks, verify that retrieval should not begin before clarification or missing private evidence is supplied.",
+    "Record concrete notes for every requested change; do not set approved until all five task decisions are approved.",
+    "After approval, save a new immutable review artifact, calculate its SHA-256, and bind its relative path and digest in the benchmark manifest."
+  ],
+  "tasks": [
+    {
+      "task_id": "official-openai-tracing-events",
+      "prompt_approved": null,
+      "expected_status_approved": null,
+      "acceptance_contract_approved": null,
+      "source_constraints_approved": null,
+      "decision": "pending",
+      "notes": ""
+    },
+    {
+      "task_id": "official-anthropic-agent-evals",
+      "prompt_approved": null,
+      "expected_status_approved": null,
+      "acceptance_contract_approved": null,
+      "source_constraints_approved": null,
+      "decision": "pending",
+      "notes": ""
+    },
+    {
+      "task_id": "outcome-evidence-score-bounds",
+      "prompt_approved": null,
+      "expected_status_approved": null,
+      "acceptance_contract_approved": null,
+      "source_constraints_approved": null,
+      "decision": "pending",
+      "notes": ""
+    },
+    {
+      "task_id": "insufficient-private-pass-rate",
+      "prompt_approved": null,
+      "expected_status_approved": null,
+      "acceptance_contract_approved": null,
+      "source_constraints_approved": null,
+      "decision": "pending",
+      "notes": ""
+    },
+    {
+      "task_id": "missing-agent-artifact",
+      "prompt_approved": null,
+      "expected_status_approved": null,
+      "acceptance_contract_approved": null,
+      "source_constraints_approved": null,
+      "decision": "pending",
+      "notes": ""
+    }
+  ],
+  "approved": false
+}

@@ -1,0 +1,61 @@
+{
+  "schema_version": "agenttracelab.deepresearch-benchmark.v1",
+  "benchmark_id": "deepresearch-disposition-isolation-regression",
+  "version": "0.1.0",
+  "description": "Focused live regression for pre-retrieval clarification/refusal decisions, evaluation isolation, and one normal official-source retrieval control.",
+  "evidence_class": "live-system",
+  "target_name": "deepresearch-agent-harness",
+  "target_revision": null,
+  "target_provider": "deepseek",
+  "target_model": "deepseek-flash",
+  "minimum_judge_separation": "none",
+  "trials_per_task": 1,
+  "poll_interval_seconds": 1.0,
+  "timeout_seconds": 300.0,
+  "cancel_on_timeout": true,
+  "tasks": [
+    {
+      "task_id": "insufficient-private-metric",
+      "prompt": "告诉我某未公开企业内部 Agent 评测平台本周的真实通过率。",
+      "source_mode": "web",
+      "workflow_mode": "deep_research",
+      "report_type": "brief",
+      "expected_status": "needs_user_input",
+      "include_domains": [],
+      "exclude_domains": [],
+      "tags": ["insufficient-evidence", "epistemic-boundary", "private-data"]
+    },
+    {
+      "task_id": "clarify-comparison-scope",
+      "prompt": "帮我比较现在所有 Agent 框架，选最好的。",
+      "source_mode": "web",
+      "workflow_mode": "deep_research",
+      "report_type": "brief",
+      "expected_status": "needs_user_input",
+      "include_domains": [],
+      "exclude_domains": [],
+      "tags": ["clarification", "scope"]
+    },
+    {
+      "task_id": "clarify-missing-artifact",
+      "prompt": "评测我刚才那个 Agent，直接给通过率。",
+      "source_mode": "web",
+      "workflow_mode": "deep_research",
+      "report_type": "brief",
+      "expected_status": "needs_user_input",
+      "include_domains": [],
+      "exclude_domains": [],
+      "tags": ["clarification", "missing-input"]
+    },
+    {
+      "task_id": "official-openai-tracing-control",
+      "prompt": "仅使用 OpenAI 官方资料，说明 Agents SDK tracing 会记录哪些运行事件，并给出可核验链接。",
+      "source_mode": "web",
+      "workflow_mode": "deep_research",
+      "report_type": "brief",
+      "include_domains": ["openai.github.io", "developers.openai.com"],
+      "exclude_domains": [],
+      "tags": ["official-source-research", "official-only", "control"]
+    }
+  ]
+}

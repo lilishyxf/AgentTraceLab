@@ -1,0 +1,165 @@
+{
+  "schemaVersion": 1,
+  "runId": "run_journal_16bcb21277afbb8514017c8f4ee1b3d7",
+  "startedAt": "2026-09-20T14:16:16.990Z",
+  "updatedAt": "2026-09-20T14:16:18.419Z",
+  "state": "committed",
+  "events": [
+    {
+      "sequence": 1,
+      "occurredAt": "2026-09-20T14:16:16.991Z",
+      "elapsedMs": 1,
+      "category": "source",
+      "outcome": "completed",
+      "summary": "60-second local demo loaded",
+      "detail": "4 rows · no external request",
+      "evidence": {
+        "source_kind": "demo",
+        "demo_id": "normalization",
+        "rows": 4
+      }
+    },
+    {
+      "sequence": 2,
+      "occurredAt": "2026-09-20T14:16:18.288Z",
+      "elapsedMs": 1298,
+      "category": "script",
+      "outcome": "completed",
+      "summary": "Sandbox script completed",
+      "detail": "153 B snapshot input · 134 B transient output · no network or live OPFS",
+      "evidence": {
+        "runtime": "quickjs-wasm-worker",
+        "input_bytes": 153,
+        "output_bytes": 134,
+        "role": "host-workflow",
+        "observation": "A bounded spreadsheet snapshot is ready for local transformation.",
+        "selected_action": "Execute the reviewed QuickJS/Wasm transformation.",
+        "reason": "A typed proposal requires a validated transformation result before review.",
+        "tool_call_id": "run_journal_16bcb21277afbb8514017c8f4ee1b3d7:event:2",
+        "validation": "The worker returned a schema-preserving spreadsheet result.",
+        "disposition": "continue"
+      }
+    },
+    {
+      "sequence": 3,
+      "occurredAt": "2026-09-20T14:16:18.289Z",
+      "elapsedMs": 1299,
+      "category": "policy",
+      "outcome": "allowed",
+      "summary": "Policy allowed proposal staging",
+      "detail": "spreadsheet.cells.update · 4d764cf97967 · commit authority not granted",
+      "evidence": {
+        "decision_id": "policy_decision_927504bf30b92396db5f4d764cf97967",
+        "policy_id": "foreground-explicit-approval-v1",
+        "capability": "spreadsheet.cells.update",
+        "decision": "stage"
+      }
+    },
+    {
+      "sequence": 4,
+      "occurredAt": "2026-09-20T14:16:18.291Z",
+      "elapsedMs": 1301,
+      "category": "proposal",
+      "outcome": "prepared",
+      "summary": "Typed mutation proposal prepared",
+      "detail": "f75be7117152 · 12 bound mutations · 153 B in · 134 B out · recheck required",
+      "evidence": {
+        "proposal_id": "effect_ab266837240517fe9fb573d1ba1cdfd9f7e45e8bc72128bf89fff75be7117152",
+        "policy_decision_id": "policy_decision_927504bf30b92396db5f4d764cf97967",
+        "operation": "spreadsheet.cells.update",
+        "changed_cells": 12,
+        "precondition_strength": "recheck"
+      }
+    },
+    {
+      "sequence": 5,
+      "occurredAt": "2026-09-20T14:16:18.369Z",
+      "elapsedMs": 1379,
+      "category": "approval",
+      "outcome": "approved",
+      "summary": "Spreadsheet proposal approved",
+      "detail": "f75be7117152 · exact proposal only · source recheck still required",
+      "evidence": {
+        "proposal_id": "effect_ab266837240517fe9fb573d1ba1cdfd9f7e45e8bc72128bf89fff75be7117152",
+        "actor": "foreground-user",
+        "decision": "approve"
+      }
+    },
+    {
+      "sequence": 6,
+      "occurredAt": "2026-09-20T14:16:18.375Z",
+      "elapsedMs": 1385,
+      "category": "effect",
+      "outcome": "committed",
+      "summary": "Local effect committed",
+      "detail": "f75be7117152 · 12 cells · recheck",
+      "evidence": {
+        "proposal_id": "effect_ab266837240517fe9fb573d1ba1cdfd9f7e45e8bc72128bf89fff75be7117152",
+        "receipt_id": "receipt:effect_ab266837240517fe9fb573d1ba1cdfd9f7e45e8bc72128bf89fff75be7117152",
+        "connector_id": "local-spreadsheet",
+        "changed_cells": 12,
+        "precondition_strength": "recheck",
+        "workspace_path": null,
+        "reversal_kind": null
+      }
+    },
+    {
+      "sequence": 7,
+      "occurredAt": "2026-09-20T14:16:18.377Z",
+      "elapsedMs": 1387,
+      "category": "effect",
+      "outcome": "completed",
+      "summary": "Post-commit readback validated",
+      "detail": "f75be7117152 · committed values match the approved proposal",
+      "evidence": {
+        "proposal_id": "effect_ab266837240517fe9fb573d1ba1cdfd9f7e45e8bc72128bf89fff75be7117152",
+        "receipt_id": "receipt:effect_ab266837240517fe9fb573d1ba1cdfd9f7e45e8bc72128bf89fff75be7117152",
+        "validation_status": "matched",
+        "observed_rows": 4
+      }
+    },
+    {
+      "sequence": 8,
+      "occurredAt": "2026-09-20T14:16:18.419Z",
+      "elapsedMs": 1429,
+      "category": "export",
+      "outcome": "completed",
+      "summary": "Run journal exported",
+      "detail": "Structured events and pilot timing metrics · credential fields and source contents excluded · task/resource text defensively redacted",
+      "evidence": {
+        "format": "wasmhatch.run-journal.v1",
+        "event_count": 8
+      }
+    }
+  ],
+  "metrics": {
+    "elapsedMs": 1429,
+    "modelEvents": 0,
+    "toolCalls": 0,
+    "scriptRuns": 1,
+    "proposalsPrepared": 1,
+    "approvals": 1,
+    "rejections": 0,
+    "commits": 1,
+    "conflicts": 0,
+    "uncertainOutcomes": 0,
+    "failures": 0,
+    "timeToFirstProposalMs": 1301,
+    "timeToFirstCommitMs": 1385
+  },
+  "context": {
+    "task": "Normalize names and regions, convert amounts to numbers, and standardize stages.",
+    "source": {
+      "kind": "demo",
+      "connectorId": "local-spreadsheet",
+      "resource": "local-demo:normalization:Demo!A1",
+      "sourceSha256": null
+    }
+  },
+  "privacy": {
+    "credentialFieldsIncluded": false,
+    "sourceContentsIncluded": false,
+    "defensiveRedactionApplied": true,
+    "note": "Credential fields are excluded. Task text and resource identities are included after defensive pattern redaction; inspect them before sharing. Source cell and file contents are excluded."
+  }
+}

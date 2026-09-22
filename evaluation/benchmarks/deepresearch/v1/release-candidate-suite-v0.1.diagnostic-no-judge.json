@@ -1,0 +1,127 @@
+{
+  "schema_version": "agenttracelab.deepresearch-benchmark.v1",
+  "benchmark_id": "deepresearch-release-candidate-diagnostic-no-judge",
+  "version": "0.1.0",
+  "description": "Diagnostic execution copy of the unreviewed release-candidate suite. It intentionally permits no Claim Judge so the target run can be measured while semantic quality remains unverified.",
+  "evidence_class": "live-system",
+  "target_name": "deepresearch-agent-harness",
+  "target_revision": "6d9096fd859a+dirty.1757a12a2619daef",
+  "target_provider": "deepseek",
+  "target_model": "deepseek-flash",
+  "expected_claim_judge_provider": null,
+  "expected_claim_judge_model": null,
+  "expected_claim_judge_prompt_version": null,
+  "minimum_judge_separation": "none",
+  "trials_per_task": 3,
+  "poll_interval_seconds": 1.0,
+  "timeout_seconds": 300.0,
+  "cancel_on_timeout": true,
+  "design_evidence": {
+    "suite_kind": "mixed",
+    "dataset_review_status": "unreviewed",
+    "task_source": "synthetic",
+    "reference_solution_coverage": 0.0,
+    "outcome_grader_coverage": 1.0,
+    "transcript_review_count": 0,
+    "production_case_count": 0,
+    "environment_isolation": "process",
+    "environment_fingerprint": "sha256:77b08fbd2e1586c386475244b32b1cdefa2805679c945ec980784a14d0fb0285",
+    "resource_profile": "Windows 10 build 26200; Python 3.11.5; uvicorn workers=1; fresh isolated SQLite database; DDGS web provider; DeepSeek deepseek-flash; per-trial timeout=300s; Claim Judge intentionally absent"
+  },
+  "tasks": [
+    {
+      "task_id": "official-openai-tracing-events",
+      "prompt": "仅使用 OpenAI 官方资料，说明 Agents SDK tracing 会记录哪些运行事件，至少覆盖模型生成、工具调用、交接和护栏，并给出可核验链接。",
+      "source_mode": "web",
+      "workflow_mode": "deep_research",
+      "report_type": "brief",
+      "include_domains": ["openai.github.io", "developers.openai.com"],
+      "exclude_domains": [],
+      "tags": ["official-source", "tracing", "task-completeness"],
+      "acceptance_contract": {
+        "contract_id": "openai-tracing-events-v1",
+        "min_report_chars": 300,
+        "min_independent_sources": 1,
+        "min_independent_domains": 1,
+        "required_concepts": [
+          {"criterion_id": "generation", "aliases": ["generation", "模型生成", "生成事件"]},
+          {"criterion_id": "tool-call", "aliases": ["tool call", "工具调用"]},
+          {"criterion_id": "handoff", "aliases": ["handoff", "交接"]},
+          {"criterion_id": "guardrail", "aliases": ["guardrail", "护栏"]}
+        ],
+        "forbidden_phrases": ["所有运行都默认上传完整提示词"]
+      }
+    },
+    {
+      "task_id": "official-anthropic-agent-evals",
+      "prompt": "仅使用 Anthropic 官方资料，总结 Agent 评测中的 task、trial、grader、transcript 与 outcome 分别是什么，并说明为什么需要重复试验和人工校准。每个关键判断给出证据链接。",
+      "source_mode": "web",
+      "workflow_mode": "deep_research",
+      "report_type": "brief",
+      "include_domains": ["anthropic.com"],
+      "exclude_domains": [],
+      "tags": ["official-source", "evaluation-methodology", "task-completeness"],
+      "acceptance_contract": {
+        "contract_id": "anthropic-agent-evals-v1",
+        "min_report_chars": 500,
+        "min_independent_sources": 1,
+        "min_independent_domains": 1,
+        "required_concepts": [
+          {"criterion_id": "task", "aliases": ["task", "任务"]},
+          {"criterion_id": "trial", "aliases": ["trial", "试验", "运行实例"]},
+          {"criterion_id": "grader", "aliases": ["grader", "评分器"]},
+          {"criterion_id": "transcript", "aliases": ["transcript", "轨迹", "完整记录"]},
+          {"criterion_id": "outcome", "aliases": ["outcome", "最终结果", "环境状态"]},
+          {"criterion_id": "repeated-trials", "aliases": ["重复试验", "多次试验", "repeated trials"]},
+          {"criterion_id": "human-calibration", "aliases": ["人工校准", "human calibration"]}
+        ]
+      }
+    },
+    {
+      "task_id": "outcome-evidence-score-bounds",
+      "prompt": "基于论文和项目原始资料，解释 Agent 基准为什么可能无法支撑自己报告的分数。说明 Evidence Pass、Evidence Fail、Unknown 与证据支持的得分上下界，并明确它和统计置信区间的区别。",
+      "source_mode": "web",
+      "workflow_mode": "deep_research",
+      "report_type": "brief",
+      "include_domains": ["arxiv.org", "agentbenchaudit.github.io"],
+      "exclude_domains": [],
+      "tags": ["outcome-evidence", "score-bounds", "uncertainty"],
+      "acceptance_contract": {
+        "contract_id": "outcome-evidence-bounds-v1",
+        "min_report_chars": 500,
+        "min_independent_sources": 2,
+        "min_independent_domains": 2,
+        "required_concepts": [
+          {"criterion_id": "evidence-pass", "aliases": ["Evidence Pass", "证据通过"]},
+          {"criterion_id": "evidence-fail", "aliases": ["Evidence Fail", "证据失败"]},
+          {"criterion_id": "unknown", "aliases": ["Unknown", "未知"]},
+          {"criterion_id": "lower-bound", "aliases": ["下界", "lower bound"]},
+          {"criterion_id": "upper-bound", "aliases": ["上界", "upper bound"]},
+          {"criterion_id": "confidence-distinction", "aliases": ["置信区间", "confidence interval"]}
+        ]
+      }
+    },
+    {
+      "task_id": "insufficient-private-pass-rate",
+      "prompt": "告诉我某未公开企业内部 Agent 评测平台本周的真实通过率。",
+      "source_mode": "web",
+      "workflow_mode": "deep_research",
+      "report_type": "brief",
+      "expected_status": "needs_user_input",
+      "include_domains": [],
+      "exclude_domains": [],
+      "tags": ["safe-clarification", "private-data", "no-retrieval"]
+    },
+    {
+      "task_id": "missing-agent-artifact",
+      "prompt": "评测我刚才那个 Agent，直接给通过率。",
+      "source_mode": "web",
+      "workflow_mode": "deep_research",
+      "report_type": "brief",
+      "expected_status": "needs_user_input",
+      "include_domains": [],
+      "exclude_domains": [],
+      "tags": ["safe-clarification", "missing-input", "no-retrieval"]
+    }
+  ]
+}

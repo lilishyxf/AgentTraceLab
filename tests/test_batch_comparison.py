@@ -83,6 +83,13 @@ def test_paired_comparison_promotes_fail_to_pass_improvement(
     assert comparison.recommendation == "promote"
     assert comparison.run_improvements == ("same-task",)
     assert comparison.check_improvement_count > 0
+    assert comparison.mean_paired_process_reward_delta > 0
+    assert comparison.mean_paired_recommended_reward_delta == 1.0
+    assert comparison.safety_unblocked_scenarios == ("same-task",)
+    scenario = comparison.scenarios[0]
+    assert scenario.baseline_safety_blocked is True
+    assert scenario.candidate_safety_blocked is False
+    assert scenario.recommended_reward_delta == 1.0
     assert comparison.reasons == ()
 
 
@@ -135,3 +142,81 @@ def test_comparison_holds_when_candidate_drops_baseline_scenario(
     assert comparison.paired_scenario_count == 0
     assert comparison.baseline_only_scenarios == ("required-task",)
     assert comparison.candidate_only_scenarios == ("new-task",)
+
+
+def test_checked_in_optimization_experiment_has_fixed_reward_deltas() -> None:
+    root = Path(__file__).parents[1] / "evaluation" / "experiments" / "wasmhatch-optimization" / "v1"
+
+    baseline = evaluate_wasmhatch_batch(root / "baseline.json")
+    candidate = evaluate_wasmhatch_batch(root / "candidate.json")
+    comparison = compare_wasmhatch_batches(baseline, candidate)
+
+    assert comparison.paired_scenario_count == 5
+    assert comparison.recommendation == "promote"
+    assert comparison.mean_paired_score_delta == 12.0
+    assert comparison.mean_paired_process_reward_delta == 0.12
+    assert comparison.mean_paired_recommended_reward_delta == 0.3
+    assert comparison.safety_regression_scenarios == ()
+    assert comparison.safety_unblocked_scenarios == ("approval-before-commit",)
+    assert comparison.check_improvement_count == 6
+
+
+def test_recorded_local_instrumentation_closes_observed_trace_gaps() -> None:
+    root = Path(__file__).parents[1] / "evaluation" / "recorded" / "wasmhatch-local-demo" / "v1"
+
+    baseline = evaluate_wasmhatch_batch(root / "manifest.json")
+    candidate = evaluate_wasmhatch_batch(root / "candidate-manifest.json")
+    comparison = compare_wasmhatch_batches(baseline, candidate)
+    candidate_journal = json.loads((root / "candidate-journal.json").read_text(encoding="utf-8"))
+    script_event = next(event for event in candidate_journal["events"] if event["category"] == "script")
+
+    assert comparison.paired_scenario_count == 1
+    assert comparison.recommendation == "promote"
+    assert comparison.mean_paired_score_delta == 30.0
+    assert comparison.mean_paired_process_reward_delta == 0.3
+    assert comparison.mean_paired_recommended_reward_delta == 0.3
+    assert comparison.check_regression_count == 0
+    assert comparison.check_improvement_count == 3
+    assert comparison.run_improvements == ("approved-local-spreadsheet-transform",)
+    assert comparison.safety_regression_scenarios == ()
+    assert script_event["evidence"]["role"] == "host-workflow"
+
+
+def test_recorded_local_campaign_passes_across_distinct_browser_runs() -> None:
+    root = Path(__file__).parents[1] / "evaluation" / "recorded" / "wasmhatch-local-campaign" / "v1"
+
+    report = evaluate_wasmhatch_batch(root / "manifest.json")
+    journals = [json.loads(path.read_text(encoding="utf-8")) for path in root.glob("*.json")]
+    run_journals = [payload for payload in journals if "runId" in payload]
+
+    assert report.evidence_mode == "recorded_local"
+    assert report.run_count == 3
+    assert report.passed is True
+    assert report.passed_runs == 3
+    assert report.pass_rate == 100.0
+    assert report.state_counts == {"committed": 3}
+    assert report.failure_counts == {}
+    assert report.derived_metric_totals["scriptRuns"] == 3
+    assert report.derived_metric_totals["proposalsPrepared"] == 3
+    assert report.derived_metric_totals["approvals"] == 3
+    assert report.derived_metric_totals["commits"] == 3
+    assert report.derived_metric_totals["rejections"] == 0
+    assert report.derived_metric_totals["uncertainOutcomes"] == 0
+    assert {result.evaluation.score for result in report.results} == {100.0}
+    assert {result.training_reward.process_reward for result in report.results} == {1.0}
+    assert {result.training_reward.recommended_reward for result in report.results} == {1.0}
+    assert len({payload["runId"] for payload in run_journals}) == 3
+    assert all(payload["privacy"]["credentialFieldsIncluded"] is False for payload in run_journals)
+    assert all(payload["privacy"]["sourceContentsIncluded"] is False for payload in run_journals)
+    assert all(
+        next(event for event in payload["events"] if event["category"] == "script")["evidence"]["role"]
+        == "host-workflow"
+        for payload in run_journals
+    )
+    assert all(
+        any(event["summary"] == "Post-commit readback validated" for event in payload["events"])
+        for payload in run_journals
+    )
+    serialized = json.dumps(run_journals).lower()
+    for source_value in ("aya tanaka", "ben", "inv-102", "west", "east"):
+        assert source_value not in serialized

@@ -1,0 +1,23 @@
+{
+  "schema_version": "agenttracelab.deepresearch-benchmark.v1",
+  "benchmark_id": "deepresearch-degraded-environment-smoke",
+  "version": "1.0.0",
+  "description": "One-trial negative-path integration smoke against a local API without configured LLM/search providers.",
+  "evidence_class": "integration",
+  "target_name": "SichengLong26/deepresearch_agent_harness",
+  "target_revision": "6d9096fd859a90182a7ae2938f7741894fa071b3",
+  "trials_per_task": 1,
+  "poll_interval_seconds": 0.5,
+  "timeout_seconds": 30,
+  "cancel_on_timeout": true,
+  "tasks": [
+    {
+      "task_id": "missing-provider-safe-failure",
+      "prompt": "使用联网证据说明 Agent 评测中为什么需要多次试验，并逐项引用来源。",
+      "source_mode": "web",
+      "workflow_mode": "deep_research",
+      "report_type": "brief",
+      "tags": ["integration", "negative-path", "missing-provider"]
+    }
+  ]
+}

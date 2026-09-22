@@ -1,0 +1,67 @@
+{
+  "schema_version": "agenttracelab.deepresearch-reference-solutions.v1",
+  "benchmark_id": "deepresearch-release-candidate-v0.2-provisional-judge",
+  "benchmark_version": "0.2.0",
+  "draft_status": "ai-researched-unreviewed",
+  "researched_at": "2026-09-22",
+  "review_warning": "This file is an AI-assisted research draft. It may be machine-validated, but it must not be bound as human-reviewed release evidence until a reviewer checks every claim and source.",
+  "tasks": [
+    {
+      "task_id": "official-openai-tracing-events",
+      "expected_status": "completed",
+      "report": "OpenAI Agents SDK 的 tracing 把一次端到端工作流表示为 trace，并用具有开始时间、结束时间、trace_id、parent_id 与 span_data 的 spans 描述内部操作。默认情况下，整个 Runner.run、run_sync 或 run_streamed 调用位于一个 trace 中；每次 runner 调用、模型轮次和 Agent 执行分别形成 task_span、turn_span 与 agent_span。题目要求的四类事件均有专门记录：LLM generation 使用 generation_span；函数类 tool call 使用 function_span；Agent handoff 使用 handoff_span；输入、输出等 guardrail 检查使用 guardrail_span。SDK 还支持 transcription、speech、speech_group 与 custom spans。即使关闭自动 task/turn spans，agent、generation、function、guardrail、handoff 和 custom spans 仍可被记录。需要注意，generation_span 与 function_span 可能包含模型或工具的输入输出；可通过 RunConfig.trace_include_sensitive_data 关闭敏感内容采集，但这与完全关闭 tracing 不同。官方文档：https://openai.github.io/openai-agents-python/tracing/",
+      "evidence": [
+        {
+          "source_id": "openai-agents-tracing-official",
+          "url": "https://openai.github.io/openai-agents-python/tracing/",
+          "title": "Tracing - OpenAI Agents SDK",
+          "source_type": "official-documentation"
+        }
+      ]
+    },
+    {
+      "task_id": "official-anthropic-agent-evals",
+      "expected_status": "completed",
+      "report": "Anthropic 将 task 定义为具有明确输入和成功标准的一项测试或 test case；同一 task 的一次具体尝试叫 trial。由于模型输出在不同运行之间会变化，应执行 repeated trials，而不能把一次成功直接解释为稳定能力。grader 是评估 Agent 某个表现维度的评分逻辑，一个 task 可以有多个 grader，每个 grader 又可包含多个 assertions/checks。transcript（也称 trace 或 trajectory）是一次 trial 的完整过程记录，包含输出、工具调用、推理、中间结果以及其他交互。outcome 则是 trial 结束时环境中的最终状态：例如文字声称机票已预订并不能证明完成，真正 outcome 是数据库中是否存在预订。评测 harness 负责提供任务、工具与环境，运行任务、记录步骤、评分并聚合；它不同于让模型能够行动的 agent harness。重复试验的原因是非确定性：每项任务有自己的成功概率，一次通过可能在下一次失败。应根据目标分别报告 pass@k（k 次中至少一次成功）和 pass^k（k 次全部成功），后者更强调可靠性。Anthropic 还建议结合代码、模型和人工 grader；LLM grader 需要用 human calibration 与专家标签校准，并在证据不足时允许返回 Unknown。参考解用于证明任务可解且 grader 配置正确；定期阅读 transcript 则用于判断失败来自 Agent、题目歧义还是评分器错误。因此自动评测、生产监控与周期性人工复核应共同使用，而不能把单一模型裁判当作最终真值。官方资料：https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents",
+      "evidence": [
+        {
+          "source_id": "anthropic-demystifying-agent-evals",
+          "url": "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents",
+          "title": "Demystifying evals for AI agents",
+          "source_type": "official-engineering-guidance"
+        }
+      ]
+    },
+    {
+      "task_id": "outcome-evidence-score-bounds",
+      "expected_status": "completed",
+      "report": "论文指出，交互式 Agent 基准把一次运行映射为二元结果，但表面代理信号未必证明真实 outcome。例如只验证点击过 Save，不能证明正确对象的地址已经持久化。为此，作者在不改变原任务、Agent 或原生 evaluator 的前提下加入 outcome-evidence reporting layer：先锁定每个 case 所需的证据清单，再对保留的运行工件赋予 Evidence Pass、Evidence Fail 或 Unknown。Evidence Pass 表示工件支持基准所声称的结果；Evidence Fail 表示工件与该结果矛盾；Unknown 表示工件不足以判断，它是证据属性而不是第三种 Agent 行为。设 P、F、U 分别为三类记录数，N=P+F+U。证据支持的 lower bound（下界）为 P/N，upper bound（上界）为 (P+U)/N；区间宽度为 U/N。下界只把可验证成功计为成功，上界把所有 Unknown 视作可能成功。只在可判定样本上计算的 P/(P+F) 是 counted-only diagnostic，不能替代全体记录上的结论。该上下界是 partial-identification bounds：它表达由缺失结果证据造成的识别不确定性，并不是 confidence interval（置信区间）。置信区间通常描述在统计抽样模型下估计量的抽样波动；这里即使固定了相同样本和模型，只要 U 仍存在，真实可支持的点值就尚未由保存证据确定。因此 Unknown 既不能静默算成功，也不应一律算失败或删除。论文原文：https://arxiv.org/html/2605.10448；项目与复现资料：https://agentbenchaudit.github.io/evidence-bounds/",
+      "evidence": [
+        {
+          "source_id": "agent-benchmark-evidence-paper",
+          "url": "https://arxiv.org/html/2605.10448",
+          "title": "Can Agent Benchmarks Support Their Scores?",
+          "source_type": "primary-paper"
+        },
+        {
+          "source_id": "agent-benchmark-evidence-project",
+          "url": "https://agentbenchaudit.github.io/evidence-bounds/",
+          "title": "Evidence-Supported Bounds project release",
+          "source_type": "project-release"
+        }
+      ]
+    },
+    {
+      "task_id": "insufficient-private-pass-rate",
+      "expected_status": "needs_user_input",
+      "report": "",
+      "evidence": []
+    },
+    {
+      "task_id": "missing-agent-artifact",
+      "expected_status": "needs_user_input",
+      "report": "",
+      "evidence": []
+    }
+  ]
+}

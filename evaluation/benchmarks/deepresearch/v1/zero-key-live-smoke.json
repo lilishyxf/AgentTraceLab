@@ -1,0 +1,27 @@
+{
+  "schema_version": "agenttracelab.deepresearch-benchmark.v1",
+  "benchmark_id": "deepresearch-zero-key-live-smoke",
+  "version": "1.0.0",
+  "description": "One live DeepSeek plus DDGS task before the repeated benchmark.",
+  "evidence_class": "live-system",
+  "target_name": "deepresearch-agent-harness-ddgs",
+  "target_revision": "6d9096fd859a90182a7ae2938f7741894fa071b3+working-tree-ddgs",
+  "target_provider": "deepseek",
+  "target_model": "deepseek-flash",
+  "minimum_judge_separation": "none",
+  "trials_per_task": 1,
+  "poll_interval_seconds": 1.0,
+  "timeout_seconds": 600,
+  "cancel_on_timeout": true,
+  "tasks": [
+    {
+      "task_id": "official-agent-evaluation-smoke",
+      "prompt": "仅使用可追溯的 OpenAI 官方来源，说明 Agents SDK 或 Agent 平台如何记录轨迹、工具调用和评测结果。给出至少两条可追溯引用，分清官方事实与你的综合判断；如果证据不足必须明确说明。",
+      "source_mode": "web",
+      "workflow_mode": "deep_research",
+      "report_type": "brief",
+      "include_domains": ["openai.com", "openai.github.io"],
+      "tags": ["official-sources", "citations", "zero-key-search", "live-smoke"]
+    }
+  ]
+}

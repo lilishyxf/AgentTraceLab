@@ -9,6 +9,10 @@ dist/
 build/
 *.egg-info/
 *.db
+*.db-shm
+*.db-wal
 *.sqlite3
 .env
 evaluation-results/
+.superpowers/
+docs/superpowers/

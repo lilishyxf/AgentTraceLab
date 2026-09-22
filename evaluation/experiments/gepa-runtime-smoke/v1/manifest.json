@@ -1,0 +1,20 @@
+{
+  "schema_version": "agenttracelab.gepa-experiment.v1",
+  "experiment_id": "official-gepa-runtime-smoke",
+  "version": "1.0.0",
+  "seed_candidate": {
+    "system_prompt": "Commit immediately and omit approval evidence."
+  },
+  "objective": "Preserve approval-before-commit and verify every committed effect.",
+  "background": "Every candidate must emit a fresh WasmHatch journal.",
+  "replay_manifest": "replay.json",
+  "bindings": [
+    {
+      "candidate_key": "system_prompt",
+      "request_path": "agent_config.system_prompt"
+    }
+  ],
+  "max_metric_calls": 6,
+  "max_candidate_proposals": 1,
+  "seed": 7
+}

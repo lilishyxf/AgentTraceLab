@@ -38,13 +38,14 @@ def render_comparison_html(report: BatchComparisonReport) -> str:
             f'<td><span class="status {_status_label(item.candidate_passed).lower()}">'
             f"{_status_label(item.candidate_passed)}</span> {item.candidate_score:.2f}</td>"
             f'<td class="delta">{item.score_delta:+.2f}</td>'
+            f'<td class="delta">{item.process_reward_delta:+.4f}</td>'
             f"<td>{escape(_scenario_details(item))}</td>"
             "</tr>"
         )
         for item in report.scenarios
     )
     if not rows:
-        rows = '<tr><td colspan="5" class="muted">No paired scenarios.</td></tr>'
+        rows = '<tr><td colspan="6" class="muted">No paired scenarios.</td></tr>'
     baseline_only = (
         "".join(f"<li><code>{escape(item)}</code></li>" for item in report.baseline_only_scenarios)
         or "<li>None</li>"
@@ -75,7 +76,7 @@ def render_comparison_html(report: BatchComparisonReport) -> str:
     .eyebrow,.muted {{ color:var(--muted); }} .eyebrow {{ text-transform:uppercase; letter-spacing:.14em; font-size:12px; }}
     .decision {{ padding:9px 14px; border-radius:999px; font-weight:800; letter-spacing:.08em; }}
     .decision.promote {{ color:#06190e; background:var(--good); }} .decision.hold {{ color:#26050b; background:var(--bad); }}
-    .grid {{ display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; }}
+    .grid {{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }}
     .card,section {{ background:rgba(18,26,47,.88); border:1px solid var(--line); border-radius:16px; }}
     .card {{ padding:18px; }} .card strong {{ display:block; font-size:25px; }} .card span {{ color:var(--muted); }}
     section {{ padding:22px; margin-top:16px; overflow:auto; }}
@@ -94,11 +95,13 @@ def render_comparison_html(report: BatchComparisonReport) -> str:
   <div class="grid">
     <div class="card"><strong>{report.paired_scenario_count}</strong><span>paired scenarios</span></div>
     <div class="card"><strong>{report.mean_paired_score_delta:+.2f}</strong><span>mean score delta</span></div>
+    <div class="card"><strong>{report.mean_paired_process_reward_delta:+.4f}</strong><span>mean process reward delta</span></div>
+    <div class="card"><strong>{report.mean_paired_recommended_reward_delta:+.4f}</strong><span>mean recommended reward delta</span></div>
     <div class="card"><strong>{len(report.run_regressions)}</strong><span>run regressions</span></div>
     <div class="card"><strong>{report.check_regression_count}</strong><span>check regressions</span></div>
   </div>
   {blocker_section}
-  <section><h2>Paired scenarios</h2><table><thead><tr><th>Scenario</th><th>Baseline</th><th>Candidate</th><th>Delta</th><th>Evidence</th></tr></thead>
+  <section><h2>Paired scenarios</h2><table><thead><tr><th>Scenario</th><th>Baseline</th><th>Candidate</th><th>Score delta</th><th>Process reward delta</th><th>Evidence</th></tr></thead>
     <tbody>{rows}</tbody></table></section>
   <section class="coverage"><div><h2>Baseline-only</h2><ul>{baseline_only}</ul></div><div><h2>Candidate-only</h2><ul>{candidate_only}</ul></div></section>
   <footer>{notice}</footer>
@@ -144,7 +147,9 @@ def render_comparison_junit(report: BatchComparisonReport) -> str:
         output = SubElement(case, "system-out")
         output.text = (
             f"baseline_score={item.baseline_score:.2f} "
-            f"candidate_score={item.candidate_score:.2f} delta={item.score_delta:+.2f}"
+            f"candidate_score={item.candidate_score:.2f} delta={item.score_delta:+.2f} "
+            f"process_reward_delta={item.process_reward_delta:+.4f} "
+            f"recommended_reward_delta={item.recommended_reward_delta:+.4f}"
         )
     for scenario_id in report.baseline_only_scenarios:
         case = SubElement(

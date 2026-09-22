@@ -22,10 +22,18 @@ class ScenarioComparison(FrozenModel):
     score_delta: float
     check_regressions: tuple[str, ...]
     check_improvements: tuple[str, ...]
+    baseline_process_reward: float = Field(default=0.0, ge=0, le=1)
+    candidate_process_reward: float = Field(default=0.0, ge=0, le=1)
+    process_reward_delta: float = Field(default=0.0, ge=-1, le=1)
+    baseline_recommended_reward: float = Field(default=0.0, ge=0, le=1)
+    candidate_recommended_reward: float = Field(default=0.0, ge=0, le=1)
+    recommended_reward_delta: float = Field(default=0.0, ge=-1, le=1)
+    baseline_safety_blocked: bool = False
+    candidate_safety_blocked: bool = False
 
 
 class BatchComparisonReport(FrozenModel):
-    schema_version: Literal["agenttracelab.batch-comparison.v1"] = "agenttracelab.batch-comparison.v1"
+    schema_version: Literal["agenttracelab.batch-comparison.v2"] = "agenttracelab.batch-comparison.v2"
     baseline_batch_id: str
     baseline_version: str
     candidate_batch_id: str
@@ -39,6 +47,10 @@ class BatchComparisonReport(FrozenModel):
     check_regression_count: int = Field(ge=0)
     check_improvement_count: int = Field(ge=0)
     mean_paired_score_delta: float
+    mean_paired_process_reward_delta: float = Field(default=0.0, ge=-1, le=1)
+    mean_paired_recommended_reward_delta: float = Field(default=0.0, ge=-1, le=1)
+    safety_regression_scenarios: tuple[str, ...] = ()
+    safety_unblocked_scenarios: tuple[str, ...] = ()
     evidence_modes_match: bool
     recommendation: Literal["promote", "hold"]
     reasons: tuple[str, ...]
@@ -78,6 +90,22 @@ def compare_wasmhatch_batches(
                 score_delta=comparison.score_delta,
                 check_regressions=comparison.regressions,
                 check_improvements=comparison.improvements,
+                baseline_process_reward=baseline_result.training_reward.process_reward,
+                candidate_process_reward=candidate_result.training_reward.process_reward,
+                process_reward_delta=round(
+                    candidate_result.training_reward.process_reward
+                    - baseline_result.training_reward.process_reward,
+                    4,
+                ),
+                baseline_recommended_reward=baseline_result.training_reward.recommended_reward,
+                candidate_recommended_reward=candidate_result.training_reward.recommended_reward,
+                recommended_reward_delta=round(
+                    candidate_result.training_reward.recommended_reward
+                    - baseline_result.training_reward.recommended_reward,
+                    4,
+                ),
+                baseline_safety_blocked=baseline_result.training_reward.safety_blocked,
+                candidate_safety_blocked=candidate_result.training_reward.safety_blocked,
             )
         )
 
@@ -90,6 +118,22 @@ def compare_wasmhatch_batches(
     check_regression_count = sum(len(result.check_regressions) for result in scenarios)
     check_improvement_count = sum(len(result.check_improvements) for result in scenarios)
     mean_score_delta = round(fmean(result.score_delta for result in scenarios), 2) if scenarios else 0.0
+    mean_process_reward_delta = (
+        round(fmean(result.process_reward_delta for result in scenarios), 4) if scenarios else 0.0
+    )
+    mean_recommended_reward_delta = (
+        round(fmean(result.recommended_reward_delta for result in scenarios), 4) if scenarios else 0.0
+    )
+    safety_regressions = tuple(
+        result.scenario_id
+        for result in scenarios
+        if not result.baseline_safety_blocked and result.candidate_safety_blocked
+    )
+    safety_unblocked = tuple(
+        result.scenario_id
+        for result in scenarios
+        if result.baseline_safety_blocked and not result.candidate_safety_blocked
+    )
     evidence_modes_match = baseline.evidence_mode == candidate.evidence_mode
 
     reasons: list[str] = []
@@ -101,6 +145,8 @@ def compare_wasmhatch_batches(
         reasons.append(f"{len(run_regressions)} paired scenario(s) regressed from pass to fail")
     if check_regression_count:
         reasons.append(f"{check_regression_count} deterministic check regression(s) detected")
+    if safety_regressions:
+        reasons.append(f"{len(safety_regressions)} paired scenario(s) introduced a safety block")
     if not candidate.passed:
         reasons.append("candidate batch contains one or more failed runs")
     if not evidence_modes_match:
@@ -120,6 +166,10 @@ def compare_wasmhatch_batches(
         check_regression_count=check_regression_count,
         check_improvement_count=check_improvement_count,
         mean_paired_score_delta=mean_score_delta,
+        mean_paired_process_reward_delta=mean_process_reward_delta,
+        mean_paired_recommended_reward_delta=mean_recommended_reward_delta,
+        safety_regression_scenarios=safety_regressions,
+        safety_unblocked_scenarios=safety_unblocked,
         evidence_modes_match=evidence_modes_match,
         recommendation="hold" if reasons else "promote",
         reasons=tuple(reasons),
@@ -139,6 +189,10 @@ def render_batch_comparison_markdown(report: BatchComparisonReport) -> str:
         f"- Candidate: `{report.candidate_batch_id}` version `{report.candidate_version}`",
         f"- Paired scenarios: {report.paired_scenario_count}",
         f"- Mean paired score delta: {report.mean_paired_score_delta:+.2f}",
+        f"- Mean process reward delta: {report.mean_paired_process_reward_delta:+.4f}",
+        f"- Mean recommended reward delta: {report.mean_paired_recommended_reward_delta:+.4f}",
+        f"- Safety regressions / unblocked: {len(report.safety_regression_scenarios)} / "
+        f"{len(report.safety_unblocked_scenarios)}",
         f"- Run regressions / improvements: {len(report.run_regressions)} / {len(report.run_improvements)}",
         (
             "- Check regressions / improvements: "
@@ -169,7 +223,9 @@ def render_batch_comparison_markdown(report: BatchComparisonReport) -> str:
     lines.extend(
         (
             f"- `{item.scenario_id}`: {item.baseline_score:.2f} → {item.candidate_score:.2f} "
-            f"({item.score_delta:+.2f}); regressions={len(item.check_regressions)}, "
+            f"({item.score_delta:+.2f}); process_reward={item.process_reward_delta:+.4f}, "
+            f"recommended_reward={item.recommended_reward_delta:+.4f}; "
+            f"regressions={len(item.check_regressions)}, "
             f"improvements={len(item.check_improvements)}"
         )
         for item in report.scenarios

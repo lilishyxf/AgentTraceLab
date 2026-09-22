@@ -1,0 +1,36 @@
+{
+  "schema_version": "agenttracelab.deepresearch-benchmark.v1",
+  "benchmark_id": "deepresearch-zero-key-stability",
+  "version": "1.0.0",
+  "description": "Two live evidence-grounded tasks repeated twice against the DeepSeek plus DDGS runtime. This is a stability smoke test, not a model-quality benchmark.",
+  "evidence_class": "live-system",
+  "target_name": "deepresearch-agent-harness-ddgs",
+  "target_revision": "6d9096fd859a90182a7ae2938f7741894fa071b3+working-tree-ddgs",
+  "target_provider": "deepseek",
+  "target_model": "deepseek-flash",
+  "minimum_judge_separation": "none",
+  "trials_per_task": 2,
+  "poll_interval_seconds": 1.0,
+  "timeout_seconds": 600,
+  "cancel_on_timeout": true,
+  "tasks": [
+    {
+      "task_id": "openai-agent-tracing",
+      "prompt": "仅使用可追溯的 OpenAI 官方来源，说明 Agents SDK 如何记录轨迹、工具调用和评测结果。给出至少两条可追溯引用，分清官方事实与你的综合判断；如果证据不足必须明确说明。",
+      "source_mode": "web",
+      "workflow_mode": "deep_research",
+      "report_type": "brief",
+      "include_domains": ["openai.com", "openai.github.io"],
+      "tags": ["official-sources", "citations", "tracing", "repeated-live"]
+    },
+    {
+      "task_id": "langsmith-evaluation-types",
+      "prompt": "仅使用 LangSmith 官方文档，解释离线评测与在线评测的区别，并说明工具调用型 Agent 至少应记录哪些过程信号。给出至少两条可追溯引用；如果官方材料不足以支持某项结论，明确标注为综合判断。",
+      "source_mode": "web",
+      "workflow_mode": "deep_research",
+      "report_type": "brief",
+      "include_domains": ["docs.langchain.com"],
+      "tags": ["official-sources", "citations", "evaluation", "repeated-live"]
+    }
+  ]
+}

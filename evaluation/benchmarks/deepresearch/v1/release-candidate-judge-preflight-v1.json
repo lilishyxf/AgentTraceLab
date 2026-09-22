@@ -1,0 +1,53 @@
+{
+  "schema_version": "agenttracelab.deepresearch-benchmark.v1",
+  "benchmark_id": "deepresearch-release-candidate-judge-preflight",
+  "version": "1.0.0",
+  "description": "One-trial live preflight for the target Agent and a separate DeepSeek model used as a provisional semantic Claim Judge. This validates the judging path but is not calibrated release evidence.",
+  "evidence_class": "live-system",
+  "target_name": "deepresearch-agent-harness",
+  "target_revision": "6d9096fd859a+dirty.1757a12a2619daef",
+  "target_provider": "deepseek",
+  "target_model": "deepseek-flash",
+  "expected_claim_judge_provider": "deepseek",
+  "expected_claim_judge_model": "deepseek-v4-pro",
+  "expected_claim_judge_prompt_version": "claim-evidence.v1",
+  "minimum_judge_separation": "different_model",
+  "trials_per_task": 1,
+  "poll_interval_seconds": 1.0,
+  "timeout_seconds": 240.0,
+  "cancel_on_timeout": true,
+  "design_evidence": {
+    "suite_kind": "regression",
+    "dataset_review_status": "generated-synthetic",
+    "task_source": "expert-authored",
+    "reference_solution_coverage": 0.0,
+    "outcome_grader_coverage": 1.0,
+    "transcript_review_count": 0,
+    "production_case_count": 0,
+    "environment_isolation": "process",
+    "environment_fingerprint": "sha256:77b08fbd2e1586c386475244b32b1cdefa2805679c945ec980784a14d0fb0285",
+    "resource_profile": "Windows 10 build 26200; Python 3.11.5; uvicorn workers=1; fresh isolated SQLite database; DDGS web provider; target DeepSeek deepseek-flash; provisional Claim Judge DeepSeek deepseek-v4-pro; timeout=240s"
+  },
+  "tasks": [
+    {
+      "task_id": "official-openai-tracing-judge-preflight",
+      "prompt": "仅使用 OpenAI 官方资料，简要说明 Agents SDK tracing 是否记录模型生成与工具调用，并给出可核验链接。",
+      "source_mode": "web",
+      "workflow_mode": "deep_research",
+      "report_type": "brief",
+      "include_domains": ["openai.github.io", "developers.openai.com"],
+      "exclude_domains": [],
+      "tags": ["preflight", "official-source", "semantic-judge"],
+      "acceptance_contract": {
+        "contract_id": "openai-tracing-judge-preflight-v1",
+        "min_report_chars": 120,
+        "min_independent_sources": 1,
+        "min_independent_domains": 1,
+        "required_concepts": [
+          {"criterion_id": "generation", "aliases": ["generation", "模型生成", "LLM 的生成"]},
+          {"criterion_id": "tool-call", "aliases": ["tool call", "工具调用"]}
+        ]
+      }
+    }
+  ]
+}

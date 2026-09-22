@@ -1,0 +1,165 @@
+{
+  "schemaVersion": 1,
+  "runId": "run_journal_f1cd7d4d6d34eed638f11169d1c5c52f",
+  "startedAt": "2026-09-20T14:16:19.234Z",
+  "updatedAt": "2026-09-20T14:16:19.753Z",
+  "state": "committed",
+  "events": [
+    {
+      "sequence": 1,
+      "occurredAt": "2026-09-20T14:16:19.234Z",
+      "elapsedMs": 0,
+      "category": "source",
+      "outcome": "completed",
+      "summary": "Invoice reconciliation sample loaded",
+      "detail": "5 rows · no external request",
+      "evidence": {
+        "source_kind": "demo",
+        "demo_id": "reconciliation",
+        "rows": 5
+      }
+    },
+    {
+      "sequence": 2,
+      "occurredAt": "2026-09-20T14:16:19.659Z",
+      "elapsedMs": 425,
+      "category": "script",
+      "outcome": "completed",
+      "summary": "Sandbox script completed",
+      "detail": "186 B snapshot input · 194 B transient output · no network or live OPFS",
+      "evidence": {
+        "runtime": "quickjs-wasm-worker",
+        "input_bytes": 186,
+        "output_bytes": 194,
+        "role": "host-workflow",
+        "observation": "A bounded spreadsheet snapshot is ready for local transformation.",
+        "selected_action": "Execute the reviewed QuickJS/Wasm transformation.",
+        "reason": "A typed proposal requires a validated transformation result before review.",
+        "tool_call_id": "run_journal_f1cd7d4d6d34eed638f11169d1c5c52f:event:2",
+        "validation": "The worker returned a schema-preserving spreadsheet result.",
+        "disposition": "continue"
+      }
+    },
+    {
+      "sequence": 3,
+      "occurredAt": "2026-09-20T14:16:19.659Z",
+      "elapsedMs": 425,
+      "category": "policy",
+      "outcome": "allowed",
+      "summary": "Policy allowed proposal staging",
+      "detail": "spreadsheet.cells.update · b0e5d4e2fc98 · commit authority not granted",
+      "evidence": {
+        "decision_id": "policy_decision_9139c1b4b7a2c9eba68fb0e5d4e2fc98",
+        "policy_id": "foreground-explicit-approval-v1",
+        "capability": "spreadsheet.cells.update",
+        "decision": "stage"
+      }
+    },
+    {
+      "sequence": 4,
+      "occurredAt": "2026-09-20T14:16:19.661Z",
+      "elapsedMs": 427,
+      "category": "proposal",
+      "outcome": "prepared",
+      "summary": "Typed mutation proposal prepared",
+      "detail": "3a8018651302 · 7 bound mutations · 186 B in · 194 B out · recheck required",
+      "evidence": {
+        "proposal_id": "effect_fe3f31ef8a6a0bdc204a3104d3460b18f0312d794f8ef9045f303a8018651302",
+        "policy_decision_id": "policy_decision_9139c1b4b7a2c9eba68fb0e5d4e2fc98",
+        "operation": "spreadsheet.cells.update",
+        "changed_cells": 7,
+        "precondition_strength": "recheck"
+      }
+    },
+    {
+      "sequence": 5,
+      "occurredAt": "2026-09-20T14:16:19.706Z",
+      "elapsedMs": 472,
+      "category": "approval",
+      "outcome": "approved",
+      "summary": "Spreadsheet proposal approved",
+      "detail": "3a8018651302 · exact proposal only · source recheck still required",
+      "evidence": {
+        "proposal_id": "effect_fe3f31ef8a6a0bdc204a3104d3460b18f0312d794f8ef9045f303a8018651302",
+        "actor": "foreground-user",
+        "decision": "approve"
+      }
+    },
+    {
+      "sequence": 6,
+      "occurredAt": "2026-09-20T14:16:19.711Z",
+      "elapsedMs": 477,
+      "category": "effect",
+      "outcome": "committed",
+      "summary": "Local effect committed",
+      "detail": "3a8018651302 · 7 cells · recheck",
+      "evidence": {
+        "proposal_id": "effect_fe3f31ef8a6a0bdc204a3104d3460b18f0312d794f8ef9045f303a8018651302",
+        "receipt_id": "receipt:effect_fe3f31ef8a6a0bdc204a3104d3460b18f0312d794f8ef9045f303a8018651302",
+        "connector_id": "local-spreadsheet",
+        "changed_cells": 7,
+        "precondition_strength": "recheck",
+        "workspace_path": null,
+        "reversal_kind": null
+      }
+    },
+    {
+      "sequence": 7,
+      "occurredAt": "2026-09-20T14:16:19.712Z",
+      "elapsedMs": 478,
+      "category": "effect",
+      "outcome": "completed",
+      "summary": "Post-commit readback validated",
+      "detail": "3a8018651302 · committed values match the approved proposal",
+      "evidence": {
+        "proposal_id": "effect_fe3f31ef8a6a0bdc204a3104d3460b18f0312d794f8ef9045f303a8018651302",
+        "receipt_id": "receipt:effect_fe3f31ef8a6a0bdc204a3104d3460b18f0312d794f8ef9045f303a8018651302",
+        "validation_status": "matched",
+        "observed_rows": 5
+      }
+    },
+    {
+      "sequence": 8,
+      "occurredAt": "2026-09-20T14:16:19.753Z",
+      "elapsedMs": 519,
+      "category": "export",
+      "outcome": "completed",
+      "summary": "Run journal exported",
+      "detail": "Structured events and pilot timing metrics · credential fields and source contents excluded · task/resource text defensively redacted",
+      "evidence": {
+        "format": "wasmhatch.run-journal.v1",
+        "event_count": 8
+      }
+    }
+  ],
+  "metrics": {
+    "elapsedMs": 519,
+    "modelEvents": 0,
+    "toolCalls": 0,
+    "scriptRuns": 1,
+    "proposalsPrepared": 1,
+    "approvals": 1,
+    "rejections": 0,
+    "commits": 1,
+    "conflicts": 0,
+    "uncertainOutcomes": 0,
+    "failures": 0,
+    "timeToFirstProposalMs": 427,
+    "timeToFirstCommitMs": 477
+  },
+  "context": {
+    "task": "Calculate each payout variance and classify every invoice as MATCH, REVIEW, or MISSING without changing source amounts.",
+    "source": {
+      "kind": "demo",
+      "connectorId": "local-spreadsheet",
+      "resource": "local-demo:reconciliation:Demo!A1",
+      "sourceSha256": null
+    }
+  },
+  "privacy": {
+    "credentialFieldsIncluded": false,
+    "sourceContentsIncluded": false,
+    "defensiveRedactionApplied": true,
+    "note": "Credential fields are excluded. Task text and resource identities are included after defensive pattern redaction; inspect them before sharing. Source cell and file contents are excluded."
+  }
+}

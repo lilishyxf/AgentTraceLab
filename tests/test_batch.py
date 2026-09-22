@@ -59,6 +59,13 @@ def test_evaluates_wasmhatch_exports_with_exact_denominators(
     assert report.derived_metric_totals["commits"] == 2
     assert report.failure_counts[FailureCategory.TRACE_CONTRACT] == 1
     assert "do not independently prove" in report.evidence_notice
+    complete = next(result for result in report.results if result.scenario_id == "complete")
+    bad_case = next(result for result in report.results if result.scenario_id == "bad-case")
+    assert complete.optimization_feedback.score == 1.0
+    assert complete.training_reward.recommended_reward == 1.0
+    assert bad_case.optimization_feedback.findings
+    assert bad_case.training_reward.recommended_reward == 0.0
+    assert bad_case.training_reward.safety_blocked is True
 
 
 def test_batch_rejects_journal_path_escape(tmp_path: Path, complete_journal: dict) -> None:
@@ -144,3 +151,23 @@ def test_checked_in_batch_and_policy_form_a_passing_smoke_gate() -> None:
 
     assert report.pass_rate == 100.0
     assert gate.decision == "promote"
+
+
+def test_recorded_local_wasmhatch_run_preserves_observed_instrumentation_gaps() -> None:
+    root = Path(__file__).parents[1] / "evaluation" / "recorded" / "wasmhatch-local-demo" / "v1"
+
+    report = evaluate_wasmhatch_batch(root / "manifest.json")
+    result = report.results[0]
+
+    assert report.evidence_mode == "recorded_local"
+    assert report.run_count == 1
+    assert result.evaluation.score == 70.0
+    assert result.evaluation.passed is False
+    assert set(result.evaluation.failure_categories) == {
+        "effect.post_commit_validation",
+        "agent.decision_evidence",
+        "agent.tool_decision_link",
+    }
+    assert result.training_reward.process_reward == 0.7
+    assert result.training_reward.recommended_reward == 0.7
+    assert result.training_reward.safety_blocked is False

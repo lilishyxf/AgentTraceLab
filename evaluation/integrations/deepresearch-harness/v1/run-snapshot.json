@@ -1,0 +1,185 @@
+{
+  "schema_version": "deepresearch-agent.run-snapshot.v1",
+  "run": {
+    "run_id": "run_4eb2e26b345c4746972de096bc259c10",
+    "session_id": "ses_f7b5224f689c41f08276f19ee8dd5fc4",
+    "source_mode": "web",
+    "workflow_mode": "deep_research",
+    "status": "completed",
+    "current_stage": "completed",
+    "usage": {
+      "usage": {
+        "llm_tokens": 120,
+        "tool_calls": 1
+      }
+    },
+    "error_code": null,
+    "error_message": null,
+    "created_at": "2026-09-20T16:22:04.630292Z",
+    "started_at": null,
+    "completed_at": "2026-09-20T16:22:04.674313Z",
+    "updated_at": "2026-09-20T16:22:04.674313Z"
+  },
+  "task": "Compare two documented agent-evaluation approaches and cite the evidence.",
+  "report": "Integration evidence is linked to the report [ev_fixture_primary]",
+  "events": [
+    {
+      "event_id": 1,
+      "event_type": "run.queued",
+      "stage": "queued",
+      "payload": {
+        "run_id": "run_4eb2e26b345c4746972de096bc259c10",
+        "schema_version": 1
+      },
+      "created_at": "2026-09-20T16:22:04.630292Z"
+    },
+    {
+      "event_id": 2,
+      "event_type": "source.coverage_checked",
+      "stage": "executing",
+      "payload": {
+        "evidence_count": 0,
+        "minimum_evidence": 1,
+        "passed": false,
+        "schema_version": 1
+      },
+      "created_at": "2026-09-20T16:22:04.645824Z"
+    },
+    {
+      "event_id": 3,
+      "event_type": "plan.replanning",
+      "stage": "replanning",
+      "payload": {
+        "failures": [
+          "min_evidence"
+        ],
+        "recovery_action": "replan",
+        "recovery_reason": "no_source_evidence",
+        "schema_version": 1
+      },
+      "created_at": "2026-09-20T16:22:04.646825Z"
+    },
+    {
+      "event_id": 4,
+      "event_type": "tool.completed",
+      "stage": "executing",
+      "payload": {
+        "result_count": 1,
+        "schema_version": 1,
+        "tool_call_id": "tool_fixture_search",
+        "tool_name": "web_search"
+      },
+      "created_at": "2026-09-20T16:22:04.652825Z"
+    },
+    {
+      "event_id": 5,
+      "event_type": "evidence.added",
+      "stage": "executing",
+      "payload": {
+        "evidence_id": "ev_fixture_primary",
+        "schema_version": 1,
+        "tool_call_id": "tool_fixture_search"
+      },
+      "created_at": "2026-09-20T16:22:04.657824Z"
+    },
+    {
+      "event_id": 6,
+      "event_type": "verification.completed",
+      "stage": "verifying",
+      "payload": {
+        "failures": [],
+        "passed": true,
+        "recovery_action": "complete",
+        "schema_version": 1
+      },
+      "created_at": "2026-09-20T16:22:04.670208Z"
+    },
+    {
+      "event_id": 7,
+      "event_type": "run.completed",
+      "stage": "completed",
+      "payload": {
+        "schema_version": 1,
+        "verified": true
+      },
+      "created_at": "2026-09-20T16:22:04.676008Z"
+    }
+  ],
+  "tool_calls": [
+    {
+      "tool_call_id": "tool_fixture_search",
+      "task_id": "task_search",
+      "tool_name": "web_search",
+      "source_mode": "web",
+      "status": "completed",
+      "args_hash": "118cef8db0e398fdf49324cc9a9d94eb2754ceeea668108cb2fe3c5f1ecd255b",
+      "result_present": true,
+      "error_code": null,
+      "created_at": "2026-09-20T16:22:04.649823Z",
+      "completed_at": "2026-09-20T16:22:04.650823Z"
+    }
+  ],
+  "evidence": [
+    {
+      "evidence_id": "ev_fixture_primary",
+      "tool_call_id": "tool_fixture_search",
+      "source_mode": "web",
+      "provider": "web_search",
+      "source_id": "https://example.com/primary",
+      "content_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "domain": "example.com"
+    }
+  ],
+  "contracts": [
+    {
+      "check_id": "contract_run_4eb2e26b345c4746972de096bc259c10_citation_integrity",
+      "kind": "citation_integrity",
+      "required": true,
+      "passed": true,
+      "verifier": "fixture-deterministic",
+      "verifier_version": "1"
+    },
+    {
+      "check_id": "contract_run_4eb2e26b345c4746972de096bc259c10_claim_support",
+      "kind": "claim_support",
+      "required": true,
+      "passed": true,
+      "verifier": "fixture-deterministic",
+      "verifier_version": "1"
+    },
+    {
+      "check_id": "contract_run_4eb2e26b345c4746972de096bc259c10_source_match",
+      "kind": "source_match",
+      "required": true,
+      "passed": true,
+      "verifier": "fixture-deterministic",
+      "verifier_version": "1"
+    }
+  ],
+  "checkpoints": [
+    {
+      "checkpoint_id": "chk_e2a8299d2bbf4280b54580b517cb81d0",
+      "version": 1,
+      "stage": "verifying",
+      "state_hash": "ab166447c50e7d5dd0a81afb58679ed5d602c135defc26cd5b0d0907dfcd5fde",
+      "integrity_valid": true,
+      "created_at": "2026-09-20T16:22:04.668210Z"
+    },
+    {
+      "checkpoint_id": "chk_b0d8cbac98a64aec8c1354fbde27d551",
+      "version": 2,
+      "stage": "completed",
+      "state_hash": "4e9aadb42426dddc148d2ea78986ded0cb13b8c10bb40ba3ddcfde43c6d38e08",
+      "integrity_valid": true,
+      "created_at": "2026-09-20T16:22:04.676008Z"
+    }
+  ],
+  "plan_count": 1,
+  "task_count": 1,
+  "provenance": {
+    "source": "deepresearch_agent_harness.sqlite",
+    "database_file": "deepresearch-fixture.db",
+    "exported_at": "2026-09-20T16:28:39.652553+00:00",
+    "privacy": "tool arguments/results and checkpoint state omitted; hashes and status retained"
+  }
+}

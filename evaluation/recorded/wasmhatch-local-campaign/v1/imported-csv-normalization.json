@@ -1,0 +1,196 @@
+{
+  "schemaVersion": 1,
+  "runId": "run_journal_dc28daa5e99d2d72ea62ff1f7e3977c4",
+  "startedAt": "2026-09-20T14:16:20.339Z",
+  "updatedAt": "2026-09-20T14:16:21.104Z",
+  "state": "committed",
+  "events": [
+    {
+      "sequence": 1,
+      "occurredAt": "2026-09-20T14:16:20.340Z",
+      "elapsedMs": 1,
+      "category": "source",
+      "outcome": "completed",
+      "summary": "60-second local demo loaded",
+      "detail": "4 rows · no external request",
+      "evidence": {
+        "source_kind": "demo",
+        "demo_id": "normalization",
+        "rows": 4
+      }
+    },
+    {
+      "sequence": 2,
+      "occurredAt": "2026-09-20T14:16:20.820Z",
+      "elapsedMs": 481,
+      "category": "source",
+      "outcome": "completed",
+      "summary": "Local tabular artifact imported",
+      "detail": "campaign-input.csv · CSV · 3×2 · sha256 ea08167997f3 · inputs/campaign-input--CSV--ea08167997f3.json",
+      "evidence": {
+        "source_kind": "artifact",
+        "format": "csv",
+        "source_name": "campaign-input.csv",
+        "source_sha256": "ea08167997f38dacd1e83e8118445ca21c76c6213df58bbdd455a6b3fbc8dfaf",
+        "source_bytes": 35,
+        "rows": 3,
+        "columns": 2,
+        "workspace_path": "inputs/campaign-input--CSV--ea08167997f3.json"
+      }
+    },
+    {
+      "sequence": 3,
+      "occurredAt": "2026-09-20T14:16:20.820Z",
+      "elapsedMs": 481,
+      "category": "source",
+      "outcome": "info",
+      "summary": "Value-only import boundary",
+      "detail": "CSV fields are imported as literal strings; formatting and types are not inferred.",
+      "evidence": {
+        "warning_count": 1
+      }
+    },
+    {
+      "sequence": 4,
+      "occurredAt": "2026-09-20T14:16:20.885Z",
+      "elapsedMs": 546,
+      "category": "script",
+      "outcome": "completed",
+      "summary": "Sandbox script completed",
+      "detail": "54 B snapshot input · 50 B transient output · no network or live OPFS",
+      "evidence": {
+        "runtime": "quickjs-wasm-worker",
+        "input_bytes": 54,
+        "output_bytes": 50,
+        "role": "host-workflow",
+        "observation": "A bounded spreadsheet snapshot is ready for local transformation.",
+        "selected_action": "Execute the reviewed QuickJS/Wasm transformation.",
+        "reason": "A typed proposal requires a validated transformation result before review.",
+        "tool_call_id": "run_journal_dc28daa5e99d2d72ea62ff1f7e3977c4:event:4",
+        "validation": "The worker returned a schema-preserving spreadsheet result.",
+        "disposition": "continue"
+      }
+    },
+    {
+      "sequence": 5,
+      "occurredAt": "2026-09-20T14:16:20.886Z",
+      "elapsedMs": 547,
+      "category": "policy",
+      "outcome": "allowed",
+      "summary": "Policy allowed proposal staging",
+      "detail": "spreadsheet.cells.update · 5e8cdb85744f · commit authority not granted",
+      "evidence": {
+        "decision_id": "policy_decision_bac2cc175465818ffd9c5e8cdb85744f",
+        "policy_id": "foreground-explicit-approval-v1",
+        "capability": "spreadsheet.cells.update",
+        "decision": "stage"
+      }
+    },
+    {
+      "sequence": 6,
+      "occurredAt": "2026-09-20T14:16:20.887Z",
+      "elapsedMs": 548,
+      "category": "proposal",
+      "outcome": "prepared",
+      "summary": "Typed mutation proposal prepared",
+      "detail": "8a1a401e7f0c · 2 bound mutations · 54 B in · 50 B out · recheck required",
+      "evidence": {
+        "proposal_id": "effect_5c169b4c023e99f6ad671c0caac2bbaedd0447cd45a0549b1fa48a1a401e7f0c",
+        "policy_decision_id": "policy_decision_bac2cc175465818ffd9c5e8cdb85744f",
+        "operation": "spreadsheet.cells.update",
+        "changed_cells": 2,
+        "precondition_strength": "recheck"
+      }
+    },
+    {
+      "sequence": 7,
+      "occurredAt": "2026-09-20T14:16:20.970Z",
+      "elapsedMs": 631,
+      "category": "approval",
+      "outcome": "approved",
+      "summary": "Spreadsheet proposal approved",
+      "detail": "8a1a401e7f0c · exact proposal only · source recheck still required",
+      "evidence": {
+        "proposal_id": "effect_5c169b4c023e99f6ad671c0caac2bbaedd0447cd45a0549b1fa48a1a401e7f0c",
+        "actor": "foreground-user",
+        "decision": "approve"
+      }
+    },
+    {
+      "sequence": 8,
+      "occurredAt": "2026-09-20T14:16:21.027Z",
+      "elapsedMs": 688,
+      "category": "effect",
+      "outcome": "committed",
+      "summary": "Local effect committed",
+      "detail": "8a1a401e7f0c · 2 cells · recheck · work/campaign-input--CSV--5f1acf7a105d96b036c24651acc1f84379dd691e7d837fee98b43f9755c71dfa.json",
+      "evidence": {
+        "proposal_id": "effect_5c169b4c023e99f6ad671c0caac2bbaedd0447cd45a0549b1fa48a1a401e7f0c",
+        "receipt_id": "receipt:effect_5c169b4c023e99f6ad671c0caac2bbaedd0447cd45a0549b1fa48a1a401e7f0c",
+        "connector_id": "local-spreadsheet",
+        "changed_cells": 2,
+        "precondition_strength": "recheck",
+        "workspace_path": "work/campaign-input--CSV--5f1acf7a105d96b036c24651acc1f84379dd691e7d837fee98b43f9755c71dfa.json",
+        "reversal_kind": null
+      }
+    },
+    {
+      "sequence": 9,
+      "occurredAt": "2026-09-20T14:16:21.027Z",
+      "elapsedMs": 688,
+      "category": "effect",
+      "outcome": "completed",
+      "summary": "Post-commit readback validated",
+      "detail": "8a1a401e7f0c · committed values match the approved proposal",
+      "evidence": {
+        "proposal_id": "effect_5c169b4c023e99f6ad671c0caac2bbaedd0447cd45a0549b1fa48a1a401e7f0c",
+        "receipt_id": "receipt:effect_5c169b4c023e99f6ad671c0caac2bbaedd0447cd45a0549b1fa48a1a401e7f0c",
+        "validation_status": "matched",
+        "observed_rows": 3
+      }
+    },
+    {
+      "sequence": 10,
+      "occurredAt": "2026-09-20T14:16:21.104Z",
+      "elapsedMs": 765,
+      "category": "export",
+      "outcome": "completed",
+      "summary": "Run journal exported",
+      "detail": "Structured events and pilot timing metrics · credential fields and source contents excluded · task/resource text defensively redacted",
+      "evidence": {
+        "format": "wasmhatch.run-journal.v1",
+        "event_count": 10
+      }
+    }
+  ],
+  "metrics": {
+    "elapsedMs": 765,
+    "modelEvents": 0,
+    "toolCalls": 0,
+    "scriptRuns": 1,
+    "proposalsPrepared": 1,
+    "approvals": 1,
+    "rejections": 0,
+    "commits": 1,
+    "conflicts": 0,
+    "uncertainOutcomes": 0,
+    "failures": 0,
+    "timeToFirstProposalMs": 548,
+    "timeToFirstCommitMs": 688
+  },
+  "context": {
+    "task": "Normalize names and regions, convert amounts to numbers, and standardize stages.",
+    "source": {
+      "kind": "artifact",
+      "connectorId": null,
+      "resource": "work/campaign-input--CSV--5f1acf7a105d96b036c24651acc1f84379dd691e7d837fee98b43f9755c71dfa.json",
+      "sourceSha256": "ea08167997f38dacd1e83e8118445ca21c76c6213df58bbdd455a6b3fbc8dfaf"
+    }
+  },
+  "privacy": {
+    "credentialFieldsIncluded": false,
+    "sourceContentsIncluded": false,
+    "defensiveRedactionApplied": true,
+    "note": "Credential fields are excluded. Task text and resource identities are included after defensive pattern redaction; inspect them before sharing. Source cell and file contents are excluded."
+  }
+}

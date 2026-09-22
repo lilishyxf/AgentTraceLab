@@ -1,0 +1,23 @@
+{
+  "schema_version": "agenttracelab.wasmhatch-batch.v1",
+  "batch_id": "wasmhatch-local-campaign-recorded",
+  "version": "1.0.0",
+  "evidence_mode": "recorded_local",
+  "entries": [
+    {
+      "scenario_id": "local-normalization",
+      "journal": "local-normalization.json",
+      "tags": ["recorded-local", "browser-e2e", "approved-write", "bundled-sample"]
+    },
+    {
+      "scenario_id": "invoice-reconciliation",
+      "journal": "invoice-reconciliation.json",
+      "tags": ["recorded-local", "browser-e2e", "approved-write", "reconciliation"]
+    },
+    {
+      "scenario_id": "imported-csv-normalization",
+      "journal": "imported-csv-normalization.json",
+      "tags": ["recorded-local", "browser-e2e", "approved-write", "imported-csv"]
+    }
+  ]
+}

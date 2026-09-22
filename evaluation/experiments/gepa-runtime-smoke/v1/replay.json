@@ -1,0 +1,22 @@
+{
+  "schema_version": "agenttracelab.replay.v1",
+  "replay_id": "official-gepa-runtime-smoke",
+  "version": "1.0.0",
+  "target": {
+    "endpoint": "http://synthetic-agent.test/v1/run"
+  },
+  "tasks": [
+    {
+      "task_id": "approval-and-validation",
+      "request": {
+        "task": "Normalize the bounded sheet.",
+        "agent_config": {
+          "system_prompt": "placeholder"
+        }
+      },
+      "adapter": "wasmhatch",
+      "response_path": "trace",
+      "expected_pass": true
+    }
+  ]
+}

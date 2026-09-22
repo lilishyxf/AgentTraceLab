@@ -51,6 +51,7 @@ def test_html_report_is_standalone_and_escapes_dynamic_values() -> None:
     assert "&lt;script&gt;alert(1)&lt;/script&gt;" in rendered
     assert "<script>alert(1)</script>" not in rendered
     assert "PROMOTE" in rendered
+    assert "mean process reward delta" in rendered
 
 
 def test_junit_report_encodes_regressions_coverage_and_gate() -> None:
@@ -77,3 +78,4 @@ def test_junit_promote_report_has_no_failures() -> None:
 
     assert root.attrib["failures"] == "0"
     assert root.find(".//failure") is None
+    assert "process_reward_delta=" in root.find(".//testcase/system-out").text

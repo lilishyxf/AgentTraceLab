@@ -7,14 +7,18 @@ from typing import Any, Literal
 
 from pydantic import Field, model_validator
 
-from agenttracelab.adapters import adapt_otlp_json, adapt_wasmhatch_journal
+from agenttracelab.adapters import (
+    adapt_deepresearch_snapshot,
+    adapt_otlp_json,
+    adapt_wasmhatch_journal,
+)
 from agenttracelab.evaluation import evaluate_trace
 from agenttracelab.models import CheckStatus, EvaluationReport, FrozenModel, TraceEnvelope
 
 
 class DatasetTask(FrozenModel):
     task_id: str = Field(min_length=1, max_length=128)
-    adapter: Literal["wasmhatch", "normalized", "otlp"]
+    adapter: Literal["wasmhatch", "deepresearch", "normalized", "otlp"]
     fixture: str = Field(min_length=1, max_length=512)
     expected_pass: bool
     expected_check_statuses: dict[str, CheckStatus] = Field(default_factory=dict)
@@ -80,6 +84,8 @@ def _load_json(path: Path) -> dict[str, Any]:
 def _adapt_task(task: DatasetTask, payload: dict[str, Any]) -> TraceEnvelope:
     if task.adapter == "wasmhatch":
         return adapt_wasmhatch_journal(payload)
+    if task.adapter == "deepresearch":
+        return adapt_deepresearch_snapshot(payload)
     if task.adapter == "normalized":
         return TraceEnvelope.model_validate(payload)
     traces = adapt_otlp_json(payload)

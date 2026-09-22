@@ -1,0 +1,17 @@
+{
+  "schema_version": "agenttracelab.deepresearch-faults.v1",
+  "suite_id": "deepresearch-evaluator-mutations-v1",
+  "version": "1.0.0",
+  "cases": [
+    {"fault_id": "bad-citation", "fault_type": "citation_corruption"},
+    {"fault_id": "source-leak", "fault_type": "source_mode_leakage"},
+    {"fault_id": "bad-checkpoint", "fault_type": "checkpoint_corruption"},
+    {"fault_id": "failed-contract", "fault_type": "required_contract_failure"},
+    {"fault_id": "usage-drift", "fault_type": "tool_accounting_drift"},
+    {"fault_id": "lost-tool-result", "fault_type": "tool_result_loss"},
+    {"fault_id": "active-run", "fault_type": "non_terminal_run"},
+    {"fault_id": "lost-decision-link", "fault_type": "decision_tool_link_loss"},
+    {"fault_id": "secret-in-trace", "fault_type": "secret_leakage"},
+    {"fault_id": "duplicate-tool", "fault_type": "duplicate_tool_call"}
+  ]
+}

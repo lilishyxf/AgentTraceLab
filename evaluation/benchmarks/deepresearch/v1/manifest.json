@@ -1,0 +1,47 @@
+{
+  "schema_version": "agenttracelab.deepresearch-benchmark.v1",
+  "benchmark_id": "deepresearch-process-v1",
+  "version": "1.0.0",
+  "description": "Repeated live-system tasks for durable execution, evidence, citation, recovery, and reliability measurement.",
+  "evidence_class": "live-system",
+  "target_name": "SichengLong26/deepresearch_agent_harness",
+  "target_revision": "6d9096fd859a90182a7ae2938f7741894fa071b3",
+  "trials_per_task": 3,
+  "poll_interval_seconds": 1.0,
+  "timeout_seconds": 900,
+  "cancel_on_timeout": true,
+  "tasks": [
+    {
+      "task_id": "official-source-synthesis",
+      "prompt": "仅使用可追溯的一手或官方来源，比较 OpenAI Agents SDK 与 Anthropic 关于 Agent 评测的公开方法。分别说明它们怎样处理轨迹、工具调用、结果验证和人工评审；逐项给出引用，并明确哪些结论是原文事实、哪些是你的综合判断。",
+      "source_mode": "web",
+      "workflow_mode": "deep_research",
+      "report_type": "long_document",
+      "tags": ["official-sources", "citations", "synthesis"]
+    },
+    {
+      "task_id": "conflicting-evidence",
+      "prompt": "调查长期任务型 Agent 的记忆应如何划分为工作记忆、情景记忆和长期事实记忆。至少找到三个相互独立的可靠来源；当来源对分类或实现方式不一致时，保留分歧而不是强行统一，并让每个关键主张都能追溯到证据。",
+      "source_mode": "web",
+      "workflow_mode": "deep_research",
+      "report_type": "long_document",
+      "tags": ["source-diversity", "conflict", "memory"]
+    },
+    {
+      "task_id": "benchmark-methodology",
+      "prompt": "基于公开论文和官方技术资料，解释 Agent 基准中 pass@1、pass^k、任务最终状态检查、轨迹评分各自衡量什么。给出一个适用于企业 Agent 的小型评测方案，并明确指出不能从这些指标推出哪些结论。所有定义和关键判断均需引用来源。",
+      "source_mode": "web",
+      "workflow_mode": "deep_research",
+      "report_type": "long_document",
+      "tags": ["evaluation", "reliability", "methodology"]
+    },
+    {
+      "task_id": "insufficient-evidence",
+      "prompt": "核查“到 2026 年，所有头部互联网公司都已将自主 Agent 用于无人审批的生产写操作”这一说法。优先寻找官方材料；如果证据不足、定义含糊或只能找到个案，必须明确拒绝确认全称结论，并分别列出已证实、未证实和无法判断的部分。",
+      "source_mode": "web",
+      "workflow_mode": "deep_research",
+      "report_type": "brief",
+      "tags": ["calibration", "negative-claim", "honest-uncertainty"]
+    }
+  ]
+}

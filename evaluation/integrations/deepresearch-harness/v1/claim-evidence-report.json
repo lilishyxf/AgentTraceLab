@@ -1,0 +1,62 @@
+{
+  "schema_version": "agenttracelab.claim-evidence-report.v1",
+  "run_id": "run_4eb2e26b345c4746972de096bc259c10",
+  "trace_id": "deepresearch_run_4eb2e26b345c4746972de096bc259c10",
+  "created_at": "2026-09-20T17:02:13.471826Z",
+  "prompt_version": null,
+  "judge_provider": null,
+  "judge_model": null,
+  "policy": {
+    "min_claim_chars": 12,
+    "max_claims": 100,
+    "min_lexical_overlap": 0.08,
+    "min_citation_coverage": 0.8,
+    "min_citation_resolution": 1.0,
+    "min_semantic_support": 0.75
+  },
+  "metrics": {
+    "claim_count": 1,
+    "cited_claim_count": 1,
+    "resolved_claim_count": 1,
+    "proxy_supported_claim_count": 0,
+    "judged_claim_count": 0,
+    "supported_claim_count": 0,
+    "citation_coverage": 1.0,
+    "citation_resolution": 1.0,
+    "proxy_support_rate": null,
+    "semantic_support_rate": null,
+    "independent_source_count": 1
+  },
+  "citation_gate_passed": true,
+  "semantic_gate_passed": null,
+  "recommendation": "human_review",
+  "claims": [
+    {
+      "claim_id": "claim_0001",
+      "text": "Integration evidence is linked to the report",
+      "citation_ids": [
+        "ev_fixture_primary"
+      ],
+      "resolved_evidence_ids": [
+        "ev_fixture_primary"
+      ],
+      "missing_evidence_ids": [],
+      "source_ids": [
+        "https://example.com/primary"
+      ],
+      "source_domains": [
+        "example.com"
+      ],
+      "lexical_overlap": null,
+      "deterministic_verdict": "ungradable",
+      "judge_verdict": null,
+      "judge_rationale": null,
+      "final_verdict": "ungradable"
+    }
+  ],
+  "limitations": [
+    "Lexical overlap is a retrieval-support proxy and is not proof of factual entailment.",
+    "The verifier grades only exported evidence summaries, not hidden source or tool content.",
+    "No independent semantic Judge was run; semantic_gate_passed is unknown."
+  ]
+}

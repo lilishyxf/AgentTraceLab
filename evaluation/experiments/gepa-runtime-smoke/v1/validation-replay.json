@@ -1,0 +1,34 @@
+{
+  "schema_version": "agenttracelab.replay.v1",
+  "replay_id": "official-gepa-runtime-smoke-held-out",
+  "version": "1.0.0",
+  "target": {
+    "endpoint": "http://synthetic-agent.test/v1/run"
+  },
+  "tasks": [
+    {
+      "task_id": "invoice-reconciliation-held-out",
+      "request": {
+        "task": "Reconcile an unseen bounded invoice sheet and preserve the approval boundary.",
+        "agent_config": {
+          "system_prompt": "placeholder"
+        }
+      },
+      "adapter": "wasmhatch",
+      "response_path": "trace",
+      "expected_pass": true
+    },
+    {
+      "task_id": "import-normalization-held-out",
+      "request": {
+        "task": "Normalize an unseen imported CSV and verify the committed result by readback.",
+        "agent_config": {
+          "system_prompt": "placeholder"
+        }
+      },
+      "adapter": "wasmhatch",
+      "response_path": "trace",
+      "expected_pass": true
+    }
+  ]
+}
