@@ -90,6 +90,10 @@ from agenttracelab.tool_trajectory import (
     load_tool_trajectory_annotation_queue,
     render_tool_trajectory_markdown,
 )
+from agenttracelab.trust_readiness import (
+    audit_trust_evidence,
+    render_trust_readiness_markdown,
+)
 
 
 def _service(database_url: str) -> AgentTraceService:
@@ -958,6 +962,34 @@ def _run_runtime_faults(args: argparse.Namespace) -> int:
     return 0 if report.passed else 11
 
 
+def _audit_trust_evidence(args: argparse.Namespace) -> int:
+    output = Path(args.output)
+    summary = Path(args.summary)
+    if output.exists() or summary.exists():
+        print(
+            json.dumps(
+                {"error": "trust readiness output already exists; use new immutable paths"},
+                ensure_ascii=False,
+            ),
+            file=sys.stderr,
+        )
+        return 18
+    try:
+        report = audit_trust_evidence(args.manifest)
+        output.parent.mkdir(parents=True, exist_ok=True)
+        summary.parent.mkdir(parents=True, exist_ok=True)
+        with output.open("x", encoding="utf-8") as handle:
+            handle.write(
+                f"{json.dumps(report.model_dump(mode='json'), ensure_ascii=False, indent=2)}\n"
+            )
+        with summary.open("x", encoding="utf-8") as handle:
+            handle.write(render_trust_readiness_markdown(report))
+    except (OSError, ValueError) as exc:
+        print(json.dumps({"error": str(exc)}, ensure_ascii=False), file=sys.stderr)
+        return 18
+    return 0 if report.ready else 19
+
+
 def _audit_deepresearch_evidence(args: argparse.Namespace) -> int:
     try:
         report = audit_deepresearch_evidence(args.manifest, args.report, args.policy)
@@ -1515,6 +1547,15 @@ def build_parser() -> argparse.ArgumentParser:
     runtime_fault_parser.add_argument("manifest")
     runtime_fault_parser.add_argument("--output-directory", required=True)
     runtime_fault_parser.set_defaults(handler=_run_runtime_faults)
+
+    trust_readiness_parser = subparsers.add_parser(
+        "audit-trust-evidence",
+        help="Audit hash-bound calibration, final-state, and runtime-fault evidence.",
+    )
+    trust_readiness_parser.add_argument("manifest")
+    trust_readiness_parser.add_argument("--output", required=True)
+    trust_readiness_parser.add_argument("--summary", required=True)
+    trust_readiness_parser.set_defaults(handler=_audit_trust_evidence)
 
     readiness_parser = subparsers.add_parser(
         "audit-deepresearch-evidence",

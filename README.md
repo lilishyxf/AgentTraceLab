@@ -20,6 +20,41 @@ contracts, citations, checkpoint hashes, source isolation, and tool-call account
 [`docs/deepresearch-integration.md`](docs/deepresearch-integration.md) for the evidence boundary and
 commands.
 
+## Evaluation trust workflows
+
+The evaluation-trust layer closes three gaps that traces alone cannot prove:
+
+1. `analyze-judge-calibration-v2` keeps development and holdout labels separate, binds one exact
+   provider/model/prompt identity, and reports false allows, false blocks, abstentions, scoring
+   errors, agreement, kappa, and dimension error. The checked-in fixture is intentionally too small
+   for a release claim.
+2. `verify-final-state` compares independently captured filesystem or SQLite snapshots against
+   declarative required/protected-state contracts. Multiple legal end states are accepted without
+   requiring one tool path.
+3. `run-runtime-faults` injects write-applied/response-lost, stale-approval, and readback-mismatch
+   faults at a tool proxy. This is distinct from the existing 10-case trace-mutation suite: mutation
+   measures evaluator sensitivity; runtime faults measure target behavior during failure.
+4. `audit-trust-evidence` verifies immutable hashes, schemas, Judge identity, environment bindings,
+   and all three gates. Missing or changed evidence fails closed. Offline or unreviewed evidence
+   remains `diagnostic_only`.
+
+All checked-in examples run without network credentials:
+
+```powershell
+uv run agenttracelab analyze-judge-calibration-v2 `
+  evaluation/judge-calibration/offline-v2/manifest.json `
+  --output $env:TEMP/atl-calibration.json --summary $env:TEMP/atl-calibration.md
+
+uv run agenttracelab run-runtime-faults `
+  evaluation/runtime-faults/offline-v1/manifest.json `
+  --output-directory $env:TEMP/atl-runtime-faults
+```
+
+Final-state verification additionally consumes initial/final snapshots captured with the adapters;
+trust readiness consumes a hash-bound manifest over all generated reports. See
+[`docs/evaluation-trust-release.md`](docs/evaluation-trust-release.md) for the complete sequence and
+[`docs/final-state-verification.md`](docs/final-state-verification.md) for snapshot capture.
+
 ## Implemented in v2.3
 
 - Adds a fail-closed evaluation-evidence readiness audit so a high Agent score cannot be mistaken
