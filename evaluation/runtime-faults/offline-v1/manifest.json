@@ -1,0 +1,15 @@
+{
+  "schema_version": "agenttracelab.runtime-fault-manifest.v1",
+  "campaign_id": "offline-runtime-fault-harness",
+  "version": "2026-10-05",
+  "target_runner_version": "offline-kv-v1",
+  "environment_snapshot_sha256": "8e9b21e163e02541790ce43b9ea86775c89a6e2cce201d8aeacd15cfbec8a7f4",
+  "repetitions": 5,
+  "faults": [
+    "applied_response_lost",
+    "source_changed_after_approval",
+    "readback_mismatch"
+  ],
+  "operation_key": "status",
+  "operation_value": "done"
+}

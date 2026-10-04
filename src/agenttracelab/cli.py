@@ -76,6 +76,12 @@ from agenttracelab.readiness import (
 from agenttracelab.replay import run_replay
 from agenttracelab.reporting import render_comparison_html, render_comparison_junit
 from agenttracelab.review import ReviewResolutionInput, ReviewState
+from agenttracelab.runtime_faults import (
+    OfflineRuntimeFaultRunner,
+    load_runtime_fault_manifest,
+    render_runtime_fault_campaign_markdown,
+    run_runtime_fault_campaign,
+)
 from agenttracelab.service import AgentTraceService, TraceNotFoundError
 from agenttracelab.stability import run_gepa_stability_gate
 from agenttracelab.storage import Database
@@ -923,6 +929,35 @@ def _verify_final_state(args: argparse.Namespace) -> int:
     return 0 if report.passed else 10
 
 
+def _run_runtime_faults(args: argparse.Namespace) -> int:
+    output_directory = Path(args.output_directory)
+    if output_directory.exists():
+        print(
+            json.dumps(
+                {"error": "runtime fault output directory already exists; use a new immutable path"},
+                ensure_ascii=False,
+            ),
+            file=sys.stderr,
+        )
+        return 18
+    try:
+        manifest, _ = load_runtime_fault_manifest(args.manifest)
+        report = run_runtime_fault_campaign(manifest, OfflineRuntimeFaultRunner(manifest))
+        output_directory.mkdir(parents=True)
+        report_path = output_directory / "campaign-report.json"
+        summary_path = output_directory / "campaign-summary.md"
+        with report_path.open("x", encoding="utf-8") as handle:
+            handle.write(
+                f"{json.dumps(report.model_dump(mode='json'), ensure_ascii=False, indent=2)}\n"
+            )
+        with summary_path.open("x", encoding="utf-8") as handle:
+            handle.write(render_runtime_fault_campaign_markdown(report))
+    except (OSError, ValueError) as exc:
+        print(json.dumps({"error": str(exc)}, ensure_ascii=False), file=sys.stderr)
+        return 18
+    return 0 if report.passed else 11
+
+
 def _audit_deepresearch_evidence(args: argparse.Namespace) -> int:
     try:
         report = audit_deepresearch_evidence(args.manifest, args.report, args.policy)
@@ -1472,6 +1507,14 @@ def build_parser() -> argparse.ArgumentParser:
     final_state_parser.add_argument("--output", required=True)
     final_state_parser.add_argument("--summary", required=True)
     final_state_parser.set_defaults(handler=_verify_final_state)
+
+    runtime_fault_parser = subparsers.add_parser(
+        "run-runtime-faults",
+        help="Run deterministic runtime fault campaigns against the offline harness target.",
+    )
+    runtime_fault_parser.add_argument("manifest")
+    runtime_fault_parser.add_argument("--output-directory", required=True)
+    runtime_fault_parser.set_defaults(handler=_run_runtime_faults)
 
     readiness_parser = subparsers.add_parser(
         "audit-deepresearch-evidence",
