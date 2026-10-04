@@ -1,0 +1,16 @@
+{
+  "schema_version": "agenttracelab.final-state-contract.v1",
+  "task_id": "sqlite-no-write-clarification",
+  "version": "v1",
+  "adapter_kind": "sqlite",
+  "fixture_reference": "../fixtures/sqlite/fixture.sqlite3",
+  "valid_alternatives": [
+    {"alternative_id": "clarification-without-write", "required_predicates": []}
+  ],
+  "protected_predicates": [
+    {"operation": "protected_equals", "table": "items"},
+    {"operation": "protected_equals", "table": "audit"},
+    {"operation": "schema_equals"}
+  ],
+  "max_changed_resources": 0
+}

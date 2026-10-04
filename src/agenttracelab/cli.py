@@ -48,6 +48,12 @@ from agenttracelab.deepresearch_regression import (
     write_deepresearch_regression_report,
 )
 from agenttracelab.fault_injection import run_deepresearch_fault_suite
+from agenttracelab.final_state import (
+    EnvironmentSnapshot,
+    load_final_state_contract,
+    render_final_state_markdown,
+    verify_final_state,
+)
 from agenttracelab.gepa_runtime import (
     GepaRuntimeError,
     reflection_lm_from_environment,
@@ -882,6 +888,41 @@ def _analyze_judge_calibration_v2(args: argparse.Namespace) -> int:
     return 0 if report.passed else 9
 
 
+def _verify_final_state(args: argparse.Namespace) -> int:
+    output = Path(args.output)
+    summary = Path(args.summary)
+    if output.exists() or summary.exists():
+        print(
+            json.dumps(
+                {"error": "final-state output already exists; use new immutable paths"},
+                ensure_ascii=False,
+            ),
+            file=sys.stderr,
+        )
+        return 18
+    try:
+        contract, _ = load_final_state_contract(args.contract)
+        initial = EnvironmentSnapshot.model_validate_json(
+            Path(args.initial).read_text(encoding="utf-8")
+        )
+        final = EnvironmentSnapshot.model_validate_json(
+            Path(args.final).read_text(encoding="utf-8")
+        )
+        report = verify_final_state(contract, initial, final)
+        output.parent.mkdir(parents=True, exist_ok=True)
+        summary.parent.mkdir(parents=True, exist_ok=True)
+        with output.open("x", encoding="utf-8") as handle:
+            handle.write(
+                f"{json.dumps(report.model_dump(mode='json'), ensure_ascii=False, indent=2)}\n"
+            )
+        with summary.open("x", encoding="utf-8") as handle:
+            handle.write(render_final_state_markdown(report))
+    except (OSError, ValueError) as exc:
+        print(json.dumps({"error": str(exc)}, ensure_ascii=False), file=sys.stderr)
+        return 18
+    return 0 if report.passed else 10
+
+
 def _audit_deepresearch_evidence(args: argparse.Namespace) -> int:
     try:
         report = audit_deepresearch_evidence(args.manifest, args.report, args.policy)
@@ -1420,6 +1461,17 @@ def build_parser() -> argparse.ArgumentParser:
     calibration_v2_parser.add_argument("--output", required=True)
     calibration_v2_parser.add_argument("--summary", required=True)
     calibration_v2_parser.set_defaults(handler=_analyze_judge_calibration_v2)
+
+    final_state_parser = subparsers.add_parser(
+        "verify-final-state",
+        help="Verify an independently captured final filesystem or SQLite state.",
+    )
+    final_state_parser.add_argument("contract")
+    final_state_parser.add_argument("--initial", required=True)
+    final_state_parser.add_argument("--final", required=True)
+    final_state_parser.add_argument("--output", required=True)
+    final_state_parser.add_argument("--summary", required=True)
+    final_state_parser.set_defaults(handler=_verify_final_state)
 
     readiness_parser = subparsers.add_parser(
         "audit-deepresearch-evidence",

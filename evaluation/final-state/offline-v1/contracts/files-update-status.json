@@ -1,0 +1,25 @@
+{
+  "schema_version": "agenttracelab.final-state-contract.v1",
+  "task_id": "files-update-status",
+  "version": "v1",
+  "adapter_kind": "filesystem",
+  "fixture_reference": "../fixtures/files",
+  "valid_alternatives": [
+    {
+      "alternative_id": "approved",
+      "required_predicates": [
+        {"operation": "csv_row_exists", "path": "records.csv", "row": {"id": "1", "status": "approved"}}
+      ]
+    },
+    {
+      "alternative_id": "accepted",
+      "required_predicates": [
+        {"operation": "csv_row_exists", "path": "records.csv", "row": {"id": "1", "status": "accepted"}}
+      ]
+    }
+  ],
+  "protected_predicates": [
+    {"operation": "protected_equals", "path": "protected.txt"}
+  ],
+  "max_changed_resources": 1
+}

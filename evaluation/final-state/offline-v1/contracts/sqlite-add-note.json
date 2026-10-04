@@ -1,0 +1,26 @@
+{
+  "schema_version": "agenttracelab.final-state-contract.v1",
+  "task_id": "sqlite-add-note",
+  "version": "v1",
+  "adapter_kind": "sqlite",
+  "fixture_reference": "../fixtures/sqlite/fixture.sqlite3",
+  "valid_alternatives": [
+    {
+      "alternative_id": "checked-note",
+      "required_predicates": [
+        {"operation": "sqlite_value_equals", "table": "items", "where": {"id": 1}, "column": "note", "value": "checked"}
+      ]
+    },
+    {
+      "alternative_id": "reviewed-note",
+      "required_predicates": [
+        {"operation": "sqlite_value_equals", "table": "items", "where": {"id": 1}, "column": "note", "value": "reviewed"}
+      ]
+    }
+  ],
+  "protected_predicates": [
+    {"operation": "protected_equals", "table": "audit"},
+    {"operation": "schema_equals"}
+  ],
+  "max_changed_resources": 1
+}
