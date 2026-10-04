@@ -260,16 +260,20 @@ def _observation_linked(
     observation: RuntimeFaultObservation,
     environment_snapshot_sha256: str,
 ) -> bool:
-    required = {
-        observation.attempted_action_id,
-        observation.committed_effect_id,
-        observation.readback_id,
-        observation.terminal_event_id,
-    }
+    attempted_action_id = f"attempt:{observation.operation_id}"
+    expected_effect_prefix = f"effect:{observation.operation_id}:"
+    readback_sha256 = _hash(observation.readback_value)
+    readback_id = f"readback:{observation.operation_id}:{readback_sha256}"
+    terminal_event_id = f"terminal:{observation.operation_id}:{observation.terminal_state}"
+    required = {attempted_action_id, observation.committed_effect_id, readback_id, terminal_event_id}
     return (
         required.issubset(observation.evidence_links)
         and observation.environment_snapshot_sha256 == environment_snapshot_sha256
-        and observation.operation_id in observation.attempted_action_id
+        and observation.attempted_action_id == attempted_action_id
+        and observation.committed_effect_id.startswith(expected_effect_prefix)
+        and observation.readback_sha256 == readback_sha256
+        and observation.readback_id == readback_id
+        and observation.terminal_event_id == terminal_event_id
     )
 
 
@@ -292,7 +296,8 @@ def run_runtime_fault_campaign(
     false_completions = sum(
         item.declared_completed
         and (
-            item.fault_type != RuntimeFaultType.APPLIED_RESPONSE_LOST
+            item.committed_effect_count != 1
+            or item.fault_type != RuntimeFaultType.APPLIED_RESPONSE_LOST
             or item.terminal_state != "recovered"
         )
         for item in observations

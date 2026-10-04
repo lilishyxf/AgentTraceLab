@@ -274,6 +274,58 @@ def test_contract_rejects_unsafe_predicate() -> None:
         FinalStateContract.model_validate(payload)
 
 
+def test_filesystem_contract_rejects_sqlite_protected_predicate() -> None:
+    payload = _contract_payload(
+        alternatives=[{"alternative_id": "unchanged", "required_predicates": []}],
+        max_changes=0,
+    )
+    payload["protected_predicates"] = [
+        {"operation": "protected_equals", "table": "items"},
+        {"operation": "schema_equals"},
+    ]
+
+    with pytest.raises(
+        ValidationError,
+        match="filesystem contract cannot protect SQLite tables or schema",
+    ):
+        FinalStateContract.model_validate(payload)
+
+
+def test_sqlite_absence_does_not_pass_when_table_missing() -> None:
+    snapshot = EnvironmentSnapshot(
+        adapter_kind="sqlite",
+        environment_id="sqlite-empty",
+        seed="seed",
+        fixture_sha256="a" * 64,
+        snapshot_sha256="b" * 64,
+        workspace_path="unused",
+    )
+    contract = FinalStateContract(
+        task_id="missing-table",
+        version="v1",
+        adapter_kind="sqlite",
+        fixture_reference="fixture.sqlite3",
+        valid_alternatives=(
+            {
+                "alternative_id": "row-absent",
+                "required_predicates": [
+                    {
+                        "operation": "sqlite_row_absent",
+                        "table": "items",
+                        "row": {"id": 1},
+                    }
+                ],
+            },
+        ),
+        max_changed_resources=0,
+    )
+
+    report = verify_final_state(contract, snapshot, snapshot)
+
+    assert report.passed is False
+    assert "is missing" in report.alternative_results[0].failures[0]
+
+
 def test_report_hashes_are_stable(tmp_path: Path) -> None:
     adapter, initial = _filesystem_adapter(tmp_path)
     contract = FinalStateContract.model_validate(

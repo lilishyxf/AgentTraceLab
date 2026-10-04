@@ -125,6 +125,29 @@ def test_calibration_v2_rejects_identity_drift() -> None:
         CalibrationManifestV2.model_validate(_manifest_payload(first, second))
 
 
+def test_calibration_v2_requires_at_least_one_annotation() -> None:
+    case = _case("development-empty", split="development")
+    case["annotations"] = []
+    case["adjudicated"] = None
+
+    with pytest.raises(ValidationError, match="case development-empty requires a human annotation"):
+        CalibrationManifestV2.model_validate(_manifest_payload(case))
+
+
+def test_calibration_v2_adjudication_covers_all_source_annotations() -> None:
+    case = _case("holdout-incomplete-adjudication")
+    case["annotations"][1]["verdict"] = "fail"  # type: ignore[index]
+    case["adjudicated"]["source_annotation_ids"] = [  # type: ignore[index]
+        "holdout-incomplete-adjudication-a1"
+    ]
+
+    with pytest.raises(
+        ValidationError,
+        match="case holdout-incomplete-adjudication adjudication must reference every annotation",
+    ):
+        CalibrationManifestV2.model_validate(_manifest_payload(case))
+
+
 def _set_truth(case: dict[str, object], verdict: str) -> None:
     for annotation in case["annotations"]:  # type: ignore[index]
         annotation["verdict"] = verdict
@@ -188,6 +211,27 @@ def test_calibration_v2_counts_false_allow_false_block_abstain_and_error() -> No
     assert metrics.abstention_percent == 25.0
     assert metrics.scoring_error_percent == 25.0
     assert metrics.exact_agreement_percent == 0.0
+
+
+def test_false_block_rate_uses_human_pass_denominator() -> None:
+    cases: list[dict[str, object]] = []
+    blocked = _case("holdout-pass-blocked")
+    _set_truth(blocked, "pass")
+    _set_outcome(blocked, status="scored", verdict="fail")
+    cases.append(blocked)
+    for index in range(9):
+        correctly_failed = _case(f"holdout-fail-{index}")
+        _set_truth(correctly_failed, "fail")
+        _set_outcome(correctly_failed, status="scored", verdict="fail")
+        cases.append(correctly_failed)
+    payload = _manifest_payload(*cases)
+    payload["policy"]["min_holdout_cases"] = 10  # type: ignore[index]
+    manifest = CalibrationManifestV2.model_validate(payload)
+
+    holdout = analyze_judge_calibration_v2(manifest).judges[0].holdout
+
+    assert holdout.false_block_percent == 100.0
+    assert holdout.passed is False
 
 
 def test_development_success_cannot_mask_holdout_failure() -> None:

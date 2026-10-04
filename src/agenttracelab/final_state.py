@@ -345,10 +345,19 @@ class FinalStateContract(FrozenModel):
             predicate.operation in sqlite_ops for predicate in all_predicates
         ):
             raise ValueError("filesystem contract cannot contain SQLite predicates")
+        if self.adapter_kind == "filesystem" and any(
+            predicate.table is not None or predicate.operation == "schema_equals"
+            for predicate in self.protected_predicates
+        ):
+            raise ValueError("filesystem contract cannot protect SQLite tables or schema")
         if self.adapter_kind == "sqlite" and any(
             predicate.operation in filesystem_ops for predicate in all_predicates
         ):
             raise ValueError("SQLite contract cannot contain filesystem predicates")
+        if self.adapter_kind == "sqlite" and any(
+            predicate.path is not None for predicate in self.protected_predicates
+        ):
+            raise ValueError("SQLite contract cannot protect filesystem paths")
         return self
 
 
@@ -429,16 +438,25 @@ def _evaluate_predicate(
         )
     elif operation in {"sqlite_row_exists", "sqlite_row_absent"}:
         table = final.sqlite_tables.get(predicate.table or "")
-        found = bool(table) and any(_row_matches(row, predicate.row or {}) for row in table.rows)
-        passed = found if operation == "sqlite_row_exists" else not found
-        detail = f"SQLite table {predicate.table!r} row {predicate.row!r} found={found}"
+        if table is None:
+            detail = f"SQLite table {predicate.table!r} is missing"
+        else:
+            found = any(_row_matches(row, predicate.row or {}) for row in table.rows)
+            passed = found if operation == "sqlite_row_exists" else not found
+            detail = f"SQLite table {predicate.table!r} row {predicate.row!r} found={found}"
     elif operation == "sqlite_count_equals":
         table = final.sqlite_tables.get(predicate.table or "")
-        rows = list(table.rows) if table else []
-        if predicate.where:
-            rows = [row for row in rows if _row_matches(row, predicate.where)]
-        passed = len(rows) == predicate.count
-        detail = f"SQLite table {predicate.table!r} count expected {predicate.count}, got {len(rows)}"
+        if table is None:
+            detail = f"SQLite table {predicate.table!r} is missing"
+        else:
+            rows = list(table.rows)
+            if predicate.where:
+                rows = [row for row in rows if _row_matches(row, predicate.where)]
+            passed = len(rows) == predicate.count
+            detail = (
+                f"SQLite table {predicate.table!r} count expected "
+                f"{predicate.count}, got {len(rows)}"
+            )
     elif operation == "sqlite_value_equals":
         table = final.sqlite_tables.get(predicate.table or "")
         matching = [

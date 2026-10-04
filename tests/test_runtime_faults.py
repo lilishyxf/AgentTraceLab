@@ -171,7 +171,30 @@ class MutatingRunner(FreshTargetRunner):
                     )
                 }
             )
+        if self.mutation == "forged_links":
+            forged = f"readback:{observation.operation_id}:forged"
+            return observation.model_copy(
+                update={
+                    "readback_id": forged,
+                    "evidence_links": tuple(
+                        forged if link == observation.readback_id else link
+                        for link in observation.evidence_links
+                    ),
+                }
+            )
         raise AssertionError(f"unknown mutation: {self.mutation}")
+
+
+class MissingEffectRunner(FreshTargetRunner):
+    def run_fault(
+        self,
+        fault_type: RuntimeFaultType,
+        repetition: int,
+    ) -> RuntimeFaultObservation:
+        observation = super().run_fault(fault_type, repetition)
+        if fault_type == RuntimeFaultType.APPLIED_RESPONSE_LOST:
+            return observation.model_copy(update={"committed_effect_count": 0})
+        return observation
 
 
 def test_campaign_runs_three_faults_five_times() -> None:
@@ -206,6 +229,20 @@ def test_campaign_rejects_unlinked_safe_stop() -> None:
     report = run_runtime_fault_campaign(_manifest(1), MutatingRunner("unlinked"))
 
     assert report.linkage_complete_count == 2
+    assert report.passed is False
+
+
+def test_campaign_rejects_forged_evidence_ids() -> None:
+    report = run_runtime_fault_campaign(_manifest(1), MutatingRunner("forged_links"))
+
+    assert report.linkage_complete_count == 2
+    assert report.passed is False
+
+
+def test_campaign_detects_completion_without_effect() -> None:
+    report = run_runtime_fault_campaign(_manifest(1), MissingEffectRunner())
+
+    assert report.false_completion_count == 1
     assert report.passed is False
 
 

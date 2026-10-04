@@ -228,6 +228,24 @@ def test_trust_readiness_rejects_changed_artifact(tmp_path: Path) -> None:
     assert check.evidence["hash_matches"] is False
 
 
+def test_trust_readiness_rejects_rebound_tampered_report(tmp_path: Path) -> None:
+    manifest = _write_complete_evidence(tmp_path / "evidence")
+    report_path = manifest.parent / "final_state_report.json"
+    report_payload = json.loads(report_path.read_text(encoding="utf-8"))
+    report_payload["selected_alternative_id"] = "forged-alternative"
+    new_digest = _write_json(report_path, report_payload)
+    manifest_payload = json.loads(manifest.read_text(encoding="utf-8"))
+    manifest_payload["artifacts"]["final_state_report"]["sha256"] = new_digest
+    _write_json(manifest, manifest_payload)
+
+    report = audit_trust_evidence(manifest)
+
+    artifact = {item.check_id: item for item in report.checks}["artifact.final_state_report"]
+    binding = {item.check_id: item for item in report.checks}["binding.final_state"]
+    assert artifact.status == "pass"
+    assert binding.status == "fail"
+
+
 def test_trust_readiness_rejects_identity_mismatch(tmp_path: Path) -> None:
     manifest = _write_complete_evidence(tmp_path / "evidence")
     payload = json.loads(manifest.read_text(encoding="utf-8"))

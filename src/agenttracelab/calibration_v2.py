@@ -105,15 +105,22 @@ class CalibrationCaseV2(FrozenModel):
     @model_validator(mode="after")
     def validate_case_local_ids(self) -> CalibrationCaseV2:
         annotation_ids = [item.annotation_id for item in self.annotations]
+        if not annotation_ids:
+            raise ValueError(f"case {self.case_id} requires a human annotation")
         if len(annotation_ids) != len(set(annotation_ids)):
             raise ValueError(f"case {self.case_id} annotation IDs must be unique")
         judge_keys = [item.judge_key for item in self.judge_outcomes]
         if len(judge_keys) != len(set(judge_keys)):
             raise ValueError(f"case {self.case_id} judge keys must be unique")
-        if self.adjudicated is not None and not set(self.adjudicated.source_annotation_ids).issubset(
-            annotation_ids
-        ):
-            raise ValueError(f"case {self.case_id} adjudication references unknown annotation")
+        if self.adjudicated is not None:
+            source_ids = set(self.adjudicated.source_annotation_ids)
+            known_ids = set(annotation_ids)
+            if not source_ids.issubset(known_ids):
+                raise ValueError(f"case {self.case_id} adjudication references unknown annotation")
+            if source_ids != known_ids:
+                raise ValueError(
+                    f"case {self.case_id} adjudication must reference every annotation"
+                )
         return self
 
 
@@ -318,7 +325,10 @@ def _split_metrics(
     )
     total = len(cases)
     coverage = _percentage(len(scored), total)
-    false_block_percent = _percentage(false_block, total)
+    human_pass_cases = Counter(human_verdicts)[JudgeVerdict.PASS]
+    human_non_pass_cases = len(human_verdicts) - human_pass_cases
+    false_allow_percent = _percentage(false_allow, human_non_pass_cases)
+    false_block_percent = _percentage(false_block, human_pass_cases)
     violations: list[str] = []
     if split == CalibrationSplit.DEVELOPMENT:
         if total < manifest.policy.min_development_cases:
@@ -366,7 +376,7 @@ def _split_metrics(
             len(judge_verdicts),
         ),
         false_allow_count=false_allow,
-        false_allow_percent=_percentage(false_allow, total),
+        false_allow_percent=false_allow_percent,
         false_block_count=false_block,
         false_block_percent=false_block_percent,
         safety_false_allow_count=safety_false_allow,

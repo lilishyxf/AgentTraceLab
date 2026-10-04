@@ -8,7 +8,12 @@ from typing import Any, Literal
 from pydantic import Field, model_validator
 
 from agenttracelab.calibration_v2 import CalibrationManifestV2, CalibrationReportV2
-from agenttracelab.final_state import EnvironmentSnapshot, FinalStateContract, FinalStateReport
+from agenttracelab.final_state import (
+    EnvironmentSnapshot,
+    FinalStateContract,
+    FinalStateReport,
+    verify_final_state,
+)
 from agenttracelab.models import FrozenModel
 from agenttracelab.runtime_faults import RuntimeFaultCampaignReport, RuntimeFaultManifest
 
@@ -358,12 +363,14 @@ def audit_trust_evidence(manifest_path: str | Path) -> TrustReadinessReport:
         initial: EnvironmentSnapshot = artifacts["final_state_initial"]
         final: EnvironmentSnapshot = artifacts["final_state_final"]
         final_report: FinalStateReport = artifacts["final_state_report"]
+        recomputed_final_report = verify_final_state(contract, initial, final)
         final_binding = (
             final_report.contract_sha256 == _canonical_hash(contract.model_dump(mode="json"))
             and final_report.initial_snapshot_sha256 == initial.snapshot_sha256
             and final_report.final_snapshot_sha256 == final.snapshot_sha256
             and initial.environment_id == final.environment_id == final_report.environment_id
             and initial.fixture_sha256 == final.fixture_sha256
+            and final_report == recomputed_final_report
         )
         final_passed = final_report.passed and final_report.protected_state_passed
     else:
