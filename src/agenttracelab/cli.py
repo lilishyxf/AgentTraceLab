@@ -23,6 +23,11 @@ from agenttracelab.calibration import (
     load_calibration_manifest,
     render_calibration_markdown,
 )
+from agenttracelab.calibration_v2 import (
+    analyze_judge_calibration_v2,
+    load_calibration_manifest_v2,
+    render_calibration_v2_markdown,
+)
 from agenttracelab.claim_evidence import (
     ClaimJudgeConfig,
     ClaimJudgeError,
@@ -848,6 +853,35 @@ def _analyze_judge_calibration(args: argparse.Namespace) -> int:
     return 0 if report.passed else 9
 
 
+def _analyze_judge_calibration_v2(args: argparse.Namespace) -> int:
+    output = Path(args.output)
+    summary = Path(args.summary)
+    if output.exists() or summary.exists():
+        print(
+            json.dumps(
+                {"error": "calibration v2 output already exists; use new immutable paths"},
+                ensure_ascii=False,
+            ),
+            file=sys.stderr,
+        )
+        return 18
+    try:
+        manifest, _ = load_calibration_manifest_v2(args.manifest)
+        report = analyze_judge_calibration_v2(manifest)
+        output.parent.mkdir(parents=True, exist_ok=True)
+        summary.parent.mkdir(parents=True, exist_ok=True)
+        with output.open("x", encoding="utf-8") as handle:
+            handle.write(
+                f"{json.dumps(report.model_dump(mode='json'), ensure_ascii=False, indent=2)}\n"
+            )
+        with summary.open("x", encoding="utf-8") as handle:
+            handle.write(render_calibration_v2_markdown(report))
+    except (OSError, ValueError) as exc:
+        print(json.dumps({"error": str(exc)}, ensure_ascii=False), file=sys.stderr)
+        return 18
+    return 0 if report.passed else 9
+
+
 def _audit_deepresearch_evidence(args: argparse.Namespace) -> int:
     try:
         report = audit_deepresearch_evidence(args.manifest, args.report, args.policy)
@@ -1377,6 +1411,15 @@ def build_parser() -> argparse.ArgumentParser:
     calibration_parser.add_argument("--output")
     calibration_parser.add_argument("--summary")
     calibration_parser.set_defaults(handler=_analyze_judge_calibration)
+
+    calibration_v2_parser = subparsers.add_parser(
+        "analyze-judge-calibration-v2",
+        help="Evaluate a bound Judge on separate development and held-out human labels.",
+    )
+    calibration_v2_parser.add_argument("manifest")
+    calibration_v2_parser.add_argument("--output", required=True)
+    calibration_v2_parser.add_argument("--summary", required=True)
+    calibration_v2_parser.set_defaults(handler=_analyze_judge_calibration_v2)
 
     readiness_parser = subparsers.add_parser(
         "audit-deepresearch-evidence",
