@@ -16,3 +16,4 @@ build/
 evaluation-results/
 .superpowers/
 docs/superpowers/
+.worktrees/

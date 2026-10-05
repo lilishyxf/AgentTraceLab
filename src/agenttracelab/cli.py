@@ -23,6 +23,11 @@ from agenttracelab.calibration import (
     load_calibration_manifest,
     render_calibration_markdown,
 )
+from agenttracelab.calibration_v2 import (
+    analyze_judge_calibration_v2,
+    load_calibration_manifest_v2,
+    render_calibration_v2_markdown,
+)
 from agenttracelab.claim_evidence import (
     ClaimJudgeConfig,
     ClaimJudgeError,
@@ -43,6 +48,12 @@ from agenttracelab.deepresearch_regression import (
     write_deepresearch_regression_report,
 )
 from agenttracelab.fault_injection import run_deepresearch_fault_suite
+from agenttracelab.final_state import (
+    EnvironmentSnapshot,
+    load_final_state_contract,
+    render_final_state_markdown,
+    verify_final_state,
+)
 from agenttracelab.gepa_runtime import (
     GepaRuntimeError,
     reflection_lm_from_environment,
@@ -65,6 +76,12 @@ from agenttracelab.readiness import (
 from agenttracelab.replay import run_replay
 from agenttracelab.reporting import render_comparison_html, render_comparison_junit
 from agenttracelab.review import ReviewResolutionInput, ReviewState
+from agenttracelab.runtime_faults import (
+    OfflineRuntimeFaultRunner,
+    load_runtime_fault_manifest,
+    render_runtime_fault_campaign_markdown,
+    run_runtime_fault_campaign,
+)
 from agenttracelab.service import AgentTraceService, TraceNotFoundError
 from agenttracelab.stability import run_gepa_stability_gate
 from agenttracelab.storage import Database
@@ -72,6 +89,10 @@ from agenttracelab.tool_trajectory import (
     evaluate_tool_trajectory_manifest,
     load_tool_trajectory_annotation_queue,
     render_tool_trajectory_markdown,
+)
+from agenttracelab.trust_readiness import (
+    audit_trust_evidence,
+    render_trust_readiness_markdown,
 )
 
 
@@ -848,6 +869,127 @@ def _analyze_judge_calibration(args: argparse.Namespace) -> int:
     return 0 if report.passed else 9
 
 
+def _analyze_judge_calibration_v2(args: argparse.Namespace) -> int:
+    output = Path(args.output)
+    summary = Path(args.summary)
+    if output.exists() or summary.exists():
+        print(
+            json.dumps(
+                {"error": "calibration v2 output already exists; use new immutable paths"},
+                ensure_ascii=False,
+            ),
+            file=sys.stderr,
+        )
+        return 18
+    try:
+        manifest, _ = load_calibration_manifest_v2(args.manifest)
+        report = analyze_judge_calibration_v2(manifest)
+        output.parent.mkdir(parents=True, exist_ok=True)
+        summary.parent.mkdir(parents=True, exist_ok=True)
+        with output.open("x", encoding="utf-8") as handle:
+            handle.write(
+                f"{json.dumps(report.model_dump(mode='json'), ensure_ascii=False, indent=2)}\n"
+            )
+        with summary.open("x", encoding="utf-8") as handle:
+            handle.write(render_calibration_v2_markdown(report))
+    except (OSError, ValueError) as exc:
+        print(json.dumps({"error": str(exc)}, ensure_ascii=False), file=sys.stderr)
+        return 18
+    return 0 if report.passed else 9
+
+
+def _verify_final_state(args: argparse.Namespace) -> int:
+    output = Path(args.output)
+    summary = Path(args.summary)
+    if output.exists() or summary.exists():
+        print(
+            json.dumps(
+                {"error": "final-state output already exists; use new immutable paths"},
+                ensure_ascii=False,
+            ),
+            file=sys.stderr,
+        )
+        return 18
+    try:
+        contract, _ = load_final_state_contract(args.contract)
+        initial = EnvironmentSnapshot.model_validate_json(
+            Path(args.initial).read_text(encoding="utf-8")
+        )
+        final = EnvironmentSnapshot.model_validate_json(
+            Path(args.final).read_text(encoding="utf-8")
+        )
+        report = verify_final_state(contract, initial, final)
+        output.parent.mkdir(parents=True, exist_ok=True)
+        summary.parent.mkdir(parents=True, exist_ok=True)
+        with output.open("x", encoding="utf-8") as handle:
+            handle.write(
+                f"{json.dumps(report.model_dump(mode='json'), ensure_ascii=False, indent=2)}\n"
+            )
+        with summary.open("x", encoding="utf-8") as handle:
+            handle.write(render_final_state_markdown(report))
+    except (OSError, ValueError) as exc:
+        print(json.dumps({"error": str(exc)}, ensure_ascii=False), file=sys.stderr)
+        return 18
+    return 0 if report.passed else 10
+
+
+def _run_runtime_faults(args: argparse.Namespace) -> int:
+    output_directory = Path(args.output_directory)
+    if output_directory.exists():
+        print(
+            json.dumps(
+                {"error": "runtime fault output directory already exists; use a new immutable path"},
+                ensure_ascii=False,
+            ),
+            file=sys.stderr,
+        )
+        return 18
+    try:
+        manifest, _ = load_runtime_fault_manifest(args.manifest)
+        report = run_runtime_fault_campaign(manifest, OfflineRuntimeFaultRunner(manifest))
+        output_directory.mkdir(parents=True)
+        report_path = output_directory / "campaign-report.json"
+        summary_path = output_directory / "campaign-summary.md"
+        with report_path.open("x", encoding="utf-8") as handle:
+            handle.write(
+                f"{json.dumps(report.model_dump(mode='json'), ensure_ascii=False, indent=2)}\n"
+            )
+        with summary_path.open("x", encoding="utf-8") as handle:
+            handle.write(render_runtime_fault_campaign_markdown(report))
+    except (OSError, ValueError) as exc:
+        print(json.dumps({"error": str(exc)}, ensure_ascii=False), file=sys.stderr)
+        return 18
+    return 0 if report.passed else 11
+
+
+def _audit_trust_evidence(args: argparse.Namespace) -> int:
+    output = Path(args.output)
+    summary = Path(args.summary)
+    if output.exists() or summary.exists():
+        print(
+            json.dumps(
+                {"error": "trust readiness output already exists; use new immutable paths"},
+                ensure_ascii=False,
+            ),
+            file=sys.stderr,
+        )
+        return 18
+    try:
+        report = audit_trust_evidence(args.manifest)
+        output.parent.mkdir(parents=True, exist_ok=True)
+        summary.parent.mkdir(parents=True, exist_ok=True)
+        with output.open("x", encoding="utf-8") as handle:
+            handle.write(
+                f"{json.dumps(report.model_dump(mode='json'), ensure_ascii=False, indent=2)}\n"
+            )
+        with summary.open("x", encoding="utf-8") as handle:
+            handle.write(render_trust_readiness_markdown(report))
+    except (OSError, ValueError) as exc:
+        print(json.dumps({"error": str(exc)}, ensure_ascii=False), file=sys.stderr)
+        return 18
+    return 0 if report.ready else 19
+
+
 def _audit_deepresearch_evidence(args: argparse.Namespace) -> int:
     try:
         report = audit_deepresearch_evidence(args.manifest, args.report, args.policy)
@@ -1377,6 +1519,43 @@ def build_parser() -> argparse.ArgumentParser:
     calibration_parser.add_argument("--output")
     calibration_parser.add_argument("--summary")
     calibration_parser.set_defaults(handler=_analyze_judge_calibration)
+
+    calibration_v2_parser = subparsers.add_parser(
+        "analyze-judge-calibration-v2",
+        help="Evaluate a bound Judge on separate development and held-out human labels.",
+    )
+    calibration_v2_parser.add_argument("manifest")
+    calibration_v2_parser.add_argument("--output", required=True)
+    calibration_v2_parser.add_argument("--summary", required=True)
+    calibration_v2_parser.set_defaults(handler=_analyze_judge_calibration_v2)
+
+    final_state_parser = subparsers.add_parser(
+        "verify-final-state",
+        help="Verify an independently captured final filesystem or SQLite state.",
+    )
+    final_state_parser.add_argument("contract")
+    final_state_parser.add_argument("--initial", required=True)
+    final_state_parser.add_argument("--final", required=True)
+    final_state_parser.add_argument("--output", required=True)
+    final_state_parser.add_argument("--summary", required=True)
+    final_state_parser.set_defaults(handler=_verify_final_state)
+
+    runtime_fault_parser = subparsers.add_parser(
+        "run-runtime-faults",
+        help="Run deterministic runtime fault campaigns against the offline harness target.",
+    )
+    runtime_fault_parser.add_argument("manifest")
+    runtime_fault_parser.add_argument("--output-directory", required=True)
+    runtime_fault_parser.set_defaults(handler=_run_runtime_faults)
+
+    trust_readiness_parser = subparsers.add_parser(
+        "audit-trust-evidence",
+        help="Audit hash-bound calibration, final-state, and runtime-fault evidence.",
+    )
+    trust_readiness_parser.add_argument("manifest")
+    trust_readiness_parser.add_argument("--output", required=True)
+    trust_readiness_parser.add_argument("--summary", required=True)
+    trust_readiness_parser.set_defaults(handler=_audit_trust_evidence)
 
     readiness_parser = subparsers.add_parser(
         "audit-deepresearch-evidence",

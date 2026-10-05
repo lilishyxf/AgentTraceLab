@@ -1,0 +1,13 @@
+{
+  "schema_version": "agenttracelab.final-state-fixture-index.v1",
+  "fixture_id": "offline-final-state-v1",
+  "description": "Six offline contracts for validating final-state grading mechanics.",
+  "contracts": [
+    "contracts/files-update-status.json",
+    "contracts/files-create-summary.json",
+    "contracts/files-no-write.json",
+    "contracts/sqlite-update-status.json",
+    "contracts/sqlite-add-note.json",
+    "contracts/sqlite-no-write.json"
+  ]
+}

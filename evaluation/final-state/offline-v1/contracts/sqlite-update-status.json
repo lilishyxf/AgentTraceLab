@@ -1,0 +1,26 @@
+{
+  "schema_version": "agenttracelab.final-state-contract.v1",
+  "task_id": "sqlite-update-status",
+  "version": "v1",
+  "adapter_kind": "sqlite",
+  "fixture_reference": "../fixtures/sqlite/fixture.sqlite3",
+  "valid_alternatives": [
+    {
+      "alternative_id": "approved",
+      "required_predicates": [
+        {"operation": "sqlite_row_exists", "table": "items", "row": {"id": 1, "status": "approved"}}
+      ]
+    },
+    {
+      "alternative_id": "accepted",
+      "required_predicates": [
+        {"operation": "sqlite_row_exists", "table": "items", "row": {"id": 1, "status": "accepted"}}
+      ]
+    }
+  ],
+  "protected_predicates": [
+    {"operation": "protected_equals", "table": "audit"},
+    {"operation": "schema_equals"}
+  ],
+  "max_changed_resources": 1
+}
